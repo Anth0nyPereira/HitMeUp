@@ -1,4 +1,10 @@
-from panda3d.core import *
 from direct.showbase.ShowBase import ShowBase
 
-ShowBase().run()
+
+class Game(ShowBase):
+    def __init__(self):
+        super(Game, self).__init__()
+
+
+game = Game()
+game.run()
