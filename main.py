@@ -10,8 +10,6 @@ class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
-        self.camera.setPos(0, -10, 0)
-
         self.box = self.loader.loadModel("models/box") # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
         self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render) # makes the object appear in the scene
