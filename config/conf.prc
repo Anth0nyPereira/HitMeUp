@@ -4,3 +4,4 @@ undecorated false
 sync-video true
 show-frame-rate-meter true
 fullscreen false
+show-scene-graph-analyzer-meter true
