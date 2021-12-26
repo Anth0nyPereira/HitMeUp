@@ -2,12 +2,15 @@ from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.core import loadPrcFile # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
+from axis_helper import AxisHelper
 
 loadPrcFile("config/conf.prc")
 
 class Game(ShowBase):
     def __init__(self):
-        super(Game, self).__init__()
+        ShowBase.__init__(self)
+
+        self.camera.setPos(0, -10, 0)
 
         self.box = self.loader.loadModel("models/box") # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
         self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
@@ -41,6 +44,9 @@ class Game(ShowBase):
         self.accept("mouse1-up", self.updateKeyMap, ["shoot", False])
 
         self.updateTask = self.taskMgr.add(self.update, "update")
+
+        self.axis_helper = AxisHelper(10).get_axis()
+        self.axis_helper.reparentTo(self.render)
 
     # this method will be called when the event of pressing one of the available keys will occur
     def updateKeyMap(self, controlName, controlState):
