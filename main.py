@@ -14,12 +14,6 @@ class Game(ShowBase):
         self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render) # makes the object appear in the scene
 
-        panda = self.loader.loadModel("models/panda")
-        panda.setPos(-2, 10, 0) # set position
-        panda.setScale(0.2, 0.2, 0.2) # set scale
-        panda.reparentTo(self.render)
-        # panda.reparentTo(box) # box is parented to the renderer, thats why panda still appears in the scene
-
         apple = self.loader.loadModel("objects/apple.stl")
         apple.reparentTo(self.render)
 
