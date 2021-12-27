@@ -1,5 +1,7 @@
 from direct.showbase.ShowBaseGlobal import globalClock
-from panda3d.core import loadPrcFile  # funct import to load configurations file
+from panda3d.bullet import BulletWorld
+from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
+    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
@@ -17,10 +19,11 @@ class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
+        self.disableMouse()
+
         self.box = self.loader.loadModel(
             "models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        self.box.setPos(0, 10,
-                        0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
+        self.box.setPos(0, 50, 0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render)  # makes the object appear in the scene
 
         self.create_apples()
@@ -53,10 +56,30 @@ class Game(ShowBase):
 
         self.update_counter = 0
 
+        self.last_mouse_position = Vec2(0, 0)
+
+        self.camera.setPos(0, -10, 0)
+
+        # ser collisionTraverser  and collision handler
+        self.picker = CollisionTraverser()
+        self.picker.showCollisions(self.render)
+        self.pq = CollisionHandlerQueue()
+
+        self.pickerNode = CollisionNode("mouse_raycast")
+        self.pickerNP = self.camera.attachNewNode(self.pickerNode)
+        self.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        self.box.setCollideMask(BitMask32.bit(1))
+
+        self.pickerRay = CollisionRay()
+        self.pickerNode.addSolid(self.pickerRay)
+        self.picker.addCollider(self.pickerNP, self.pq)
+
+        self.accept("mouse1", self.mouse_click)
+
     # this method will be called when the event of pressing one of the available keys will occur
     def updateKeyMap(self, controlName, controlState):
         self.keyMap[controlName] = controlState
-        print(controlName, "set to", controlState)
+        # print(controlName, "set to", controlState)
 
     def create_apples(self):
         # get 2 random colors
@@ -65,10 +88,12 @@ class Game(ShowBase):
         # create 3 identical apples
         for i in range(3):
             apple = Apple(self.loader, tuple_colors[0].value).get_apple()
+            apple.setCollideMask(BitMask32.bit(1))
             available_apples.append(apple)
 
         # the ugly duck :(
         apple = Apple(self.loader, tuple_colors[1].value).get_apple()
+        apple.setCollideMask(BitMask32.bit(1))
         available_apples.append(apple)
 
         # positioning all apples
@@ -80,14 +105,37 @@ class Game(ShowBase):
             apple.reparentTo(self.render)
             pos += 1
 
+    def mouse_click(self):
+        print('mouse click')
+        # check if we have access to the mouse
+        if self.mouseWatcherNode.hasMouse():
+
+            # get the mouse position
+            mpos = self.mouseWatcherNode.getMouse()
+
+            # set the position of the ray based on the mouse position
+            print(type(self.camNode))
+            self.pickerRay.setFromLens(self.camNode, mpos.getX(), mpos.getY())
+            self.picker.traverse(self.render)
+            # if we have hit something sort the hits so that the closest is first and highlight the node
+            if self.pq.getNumEntries() > 0:
+                self.pq.sortEntries()
+                pickedObj = self.pq.getEntry(0).getIntoNodePath()
+                print(pickedObj)
+                pickedObj.detachNode()
+                pickedObj.removeNode()
+
+
+
     # update loop
     def update(self, task):
+
         # Get the amount of time since the last update
         dt = globalClock.getDt()
         # print(dt)
         timestamps.append(dt)
         if self.update_counter % 5000 == 0:
-            print("HERE")
+            # print("HERE")
             for i in range(len(available_apples)):
                 available_apples[i].detachNode()
                 available_apples[i].removeNode()
@@ -104,8 +152,8 @@ class Game(ShowBase):
             self.box.setPos(self.box.getPos() + Vec3(-5.0 * dt, 0, 0))
         if self.keyMap["right"]:
             self.box.setPos(self.box.getPos() + Vec3(5.0 * dt, 0, 0))
-        if self.keyMap["shoot"]:
-            print("Zap!")
+        # if self.keyMap["shoot"]:
+        # print("Zap!")
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
