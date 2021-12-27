@@ -3,6 +3,7 @@ from panda3d.core import loadPrcFile # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
+from apple import Apple
 
 loadPrcFile("config/conf.prc")
 
@@ -14,8 +15,12 @@ class Game(ShowBase):
         self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render) # makes the object appear in the scene
 
-        apple = self.loader.loadModel("objects/apple.stl")
-        apple.reparentTo(self.render)
+
+        # create an apple
+        apple1 = Apple(self.loader, Vec4(1, 0, 0, 1)).get_apple()
+        apple1.setPos(2, 0, 0)
+        apple1.reparentTo(self.render)
+
 
         # dict that stores keys to control the game itself
         self.keyMap = {
