@@ -1,26 +1,39 @@
 from direct.showbase.ShowBaseGlobal import globalClock
-from panda3d.core import loadPrcFile # funct import to load configurations file
+from panda3d.core import loadPrcFile  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
 from apple import Apple
+from color import Color
 
 loadPrcFile("config/conf.prc")
+
+available_apples = []
+
 
 class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
-        self.box = self.loader.loadModel("models/box") # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
-        self.box.reparentTo(self.render) # makes the object appear in the scene
+        self.box = self.loader.loadModel(
+            "models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
+        self.box.setPos(0, 10,
+                        0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
+        self.box.reparentTo(self.render)  # makes the object appear in the scene
 
+        # get 2 random colors
+        tuple_colors = Color.generate_2_random_colors()
 
-        # create an apple
-        apple1 = Apple(self.loader, Vec4(1, 0, 0, 1)).get_apple()
-        apple1.setPos(2, 0, 0)
-        apple1.reparentTo(self.render)
+        # create 3 identical apples
+        for i in range(3):
+            apple = Apple(self.loader, tuple_colors[0].value).get_apple()
+            apple.setPos(i, 0, 0)
+            apple.reparentTo(self.render)
 
+        # the ugly duck :(
+        apple = Apple(self.loader, tuple_colors[1].value).get_apple()
+        apple.setPos(3, 0, 0)
+        apple.reparentTo(self.render)
 
         # dict that stores keys to control the game itself
         self.keyMap = {
@@ -71,7 +84,8 @@ class Game(ShowBase):
         if self.keyMap["shoot"]:
             print("Zap!")
 
-        return task.cont # task.cont exists to make this task run forever
+        return task.cont  # task.cont exists to make this task run forever
+
 
 game = Game()
 
