@@ -101,7 +101,6 @@ class Game(ShowBase):
         # positioning all apples
         random.shuffle(available_apples)
         pos = 0
-        # print(available_apples)
         for apple in available_apples:
             apple.setPos(pos, 0, 0)
             apple.reparentTo(self.render)
@@ -121,14 +120,10 @@ class Game(ShowBase):
             # if we have hit something sort the hits so that the closest is first and highlight the node
             if self.pq.getNumEntries() > 0:
                 self.pq.sortEntries()
-                # print(self.pq.getEntry(0).getIntoNodePath().parent.parent)
-                # print(available_apples[0])
+
                 pickedObj = self.pq.getEntry(0).getIntoNodePath()
                 parent_picked_obj = pickedObj.parent.parent # while debugging, discovered that needed to check the great-grandfather node
-                # print(pickedObj.compareTo(available_apples[0]))
-                # print(type(pickedObj))
-                # print(type(available_apples[0]))
-                # print(parent_picked_obj in available_apples)
+
                 if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
                     print("You got it right!")
                     pickedObj.detachNode()
@@ -144,7 +139,6 @@ class Game(ShowBase):
         # print(dt)
         timestamps.append(dt)
         if self.update_counter % 5000 == 0:
-            # print("HERE")
             for i in range(len(available_apples)):
                 available_apples[i].detachNode()
                 available_apples[i].removeNode()
