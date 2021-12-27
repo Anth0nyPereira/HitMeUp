@@ -8,7 +8,6 @@ class Apple():
         # print("color in apple is " + str(color))
         self.apple.setColor(color)
         self.apple.setScale(0.02, 0.02, 0.02)
-        self.is_intruder = False
 
     def get_apple(self):
         return self.apple
