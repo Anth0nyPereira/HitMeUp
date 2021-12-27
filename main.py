@@ -20,6 +20,9 @@ class Game(ShowBase):
         panda.reparentTo(self.render)
         # panda.reparentTo(box) # box is parented to the renderer, thats why panda still appears in the scene
 
+        apple = self.loader.loadModel("objects/apple.stl")
+        apple.reparentTo(self.render)
+
         # dict that stores keys to control the game itself
         self.keyMap = {
             "up": False,
