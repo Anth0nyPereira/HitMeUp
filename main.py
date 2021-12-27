@@ -5,10 +5,12 @@ from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
 from apple import Apple
 from color import Color
+import random
 
 loadPrcFile("config/conf.prc")
 
 available_apples = []
+timestamps = []
 
 
 class Game(ShowBase):
@@ -21,19 +23,7 @@ class Game(ShowBase):
                         0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render)  # makes the object appear in the scene
 
-        # get 2 random colors
-        tuple_colors = Color.generate_2_random_colors()
-
-        # create 3 identical apples
-        for i in range(3):
-            apple = Apple(self.loader, tuple_colors[0].value).get_apple()
-            apple.setPos(i, 0, 0)
-            apple.reparentTo(self.render)
-
-        # the ugly duck :(
-        apple = Apple(self.loader, tuple_colors[1].value).get_apple()
-        apple.setPos(3, 0, 0)
-        apple.reparentTo(self.render)
+        self.create_apples()
 
         # dict that stores keys to control the game itself
         self.keyMap = {
@@ -61,18 +51,51 @@ class Game(ShowBase):
         self.axis_helper = AxisHelper(10).get_axis()
         self.axis_helper.reparentTo(self.render)
 
+        self.update_counter = 0
+
     # this method will be called when the event of pressing one of the available keys will occur
     def updateKeyMap(self, controlName, controlState):
         self.keyMap[controlName] = controlState
         print(controlName, "set to", controlState)
 
+    def create_apples(self):
+        # get 2 random colors
+        tuple_colors = Color.generate_2_random_colors()
+
+        # create 3 identical apples
+        for i in range(3):
+            apple = Apple(self.loader, tuple_colors[0].value).get_apple()
+            available_apples.append(apple)
+
+        # the ugly duck :(
+        apple = Apple(self.loader, tuple_colors[1].value).get_apple()
+        available_apples.append(apple)
+
+        # positioning all apples
+        random.shuffle(available_apples)
+        pos = 0
+        # print(available_apples)
+        for apple in available_apples:
+            apple.setPos(pos, 0, 0)
+            apple.reparentTo(self.render)
+            pos += 1
+
     # update loop
     def update(self, task):
         # Get the amount of time since the last update
         dt = globalClock.getDt()
+        # print(dt)
+        timestamps.append(dt)
+        if self.update_counter % 5000 == 0:
+            print("HERE")
+            for i in range(len(available_apples)):
+                available_apples[i].detachNode()
+                available_apples[i].removeNode()
+            available_apples.clear()
+            # timestamps.clear()
+            self.create_apples()
 
-        # If any movement keys are pressed, use the above time
-        # to calculate how far to move the character, and apply that.
+        # box movement
         if self.keyMap["up"]:
             self.box.setPos(self.box.getPos() + Vec3(0, 5.0 * dt, 0))
         if self.keyMap["down"]:
@@ -84,6 +107,7 @@ class Game(ShowBase):
         if self.keyMap["shoot"]:
             print("Zap!")
 
+        self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
 
 
