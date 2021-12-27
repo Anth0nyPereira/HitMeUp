@@ -1,7 +1,7 @@
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
-    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay  # funct import to load configurations file
+    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
@@ -89,11 +89,13 @@ class Game(ShowBase):
         for i in range(3):
             apple = Apple(self.loader, tuple_colors[0].value).get_apple()
             apple.setCollideMask(BitMask32.bit(1))
+            apple.setName("other")
             available_apples.append(apple)
 
         # the ugly duck :(
         apple = Apple(self.loader, tuple_colors[1].value).get_apple()
         apple.setCollideMask(BitMask32.bit(1))
+        apple.setName("outlandish")
         available_apples.append(apple)
 
         # positioning all apples
@@ -106,7 +108,7 @@ class Game(ShowBase):
             pos += 1
 
     def mouse_click(self):
-        print('mouse click')
+
         # check if we have access to the mouse
         if self.mouseWatcherNode.hasMouse():
 
@@ -114,18 +116,25 @@ class Game(ShowBase):
             mpos = self.mouseWatcherNode.getMouse()
 
             # set the position of the ray based on the mouse position
-            print(type(self.camNode))
             self.pickerRay.setFromLens(self.camNode, mpos.getX(), mpos.getY())
             self.picker.traverse(self.render)
             # if we have hit something sort the hits so that the closest is first and highlight the node
             if self.pq.getNumEntries() > 0:
                 self.pq.sortEntries()
+                # print(self.pq.getEntry(0).getIntoNodePath().parent.parent)
+                # print(available_apples[0])
                 pickedObj = self.pq.getEntry(0).getIntoNodePath()
-                print(pickedObj)
-                pickedObj.detachNode()
-                pickedObj.removeNode()
-
-
+                parent_picked_obj = pickedObj.parent.parent # while debugging, discovered that needed to check the great-grandfather node
+                # print(pickedObj.compareTo(available_apples[0]))
+                # print(type(pickedObj))
+                # print(type(available_apples[0]))
+                # print(parent_picked_obj in available_apples)
+                if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
+                    print("You got it right!")
+                    pickedObj.detachNode()
+                    pickedObj.removeNode()
+                else:
+                    print("Wrong, try again!")
 
     # update loop
     def update(self, task):

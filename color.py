@@ -12,7 +12,7 @@ class Color(enum.Enum):
     @classmethod
     def generate_2_random_colors(cls):
         list_of_colors = list(Color)
-        print(list_of_colors)
+        # print(list_of_colors)
         first_color = random.choice(list_of_colors)
         list_of_colors.remove(first_color)
         random.shuffle(list_of_colors)
