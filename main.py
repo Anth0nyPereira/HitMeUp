@@ -8,6 +8,7 @@ from axis_helper import AxisHelper
 from apple import Apple
 from color import Color
 import random
+from math import pi, sin, cos
 
 loadPrcFile("config/conf.prc")
 
@@ -23,31 +24,41 @@ class Game(ShowBase):
 
         self.box = self.loader.loadModel(
             "models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        self.box.setPos(0, 50, 0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
+        self.box.setPos(0, 50,
+                        0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
         self.box.reparentTo(self.render)  # makes the object appear in the scene
 
         self.create_apples()
 
         # dict that stores keys to control the game itself
-        self.keyMap = {
-            "up": False,
-            "down": False,
-            "left": False,
-            "right": False,
-            "shoot": False
-        }
+        self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
+                       "s": False, "a": False, "d": False, }
 
-        # tell panda3d to handle the events -- tell directobject class to accept the events, a pair foreach key, when it's pressed and when it's released
-        self.accept("w", self.updateKeyMap, ["up", True])
-        self.accept("w-up", self.updateKeyMap, ["up", False])
-        self.accept("s", self.updateKeyMap, ["down", True])
-        self.accept("s-up", self.updateKeyMap, ["down", False])
-        self.accept("a", self.updateKeyMap, ["left", True])
-        self.accept("a-up", self.updateKeyMap, ["left", False])
-        self.accept("d", self.updateKeyMap, ["right", True])
-        self.accept("d-up", self.updateKeyMap, ["right", False])
-        self.accept("mouse1", self.updateKeyMap, ["shoot", True])
-        self.accept("mouse1-up", self.updateKeyMap, ["shoot", False])
+        # tell panda3d to handle the events -- tell directobject class to accept the events, a pair for each key,
+        # when it's pressed and when it's released
+        self.accept("w", self.update_key_map, ["up", True])
+        self.accept("s", self.update_key_map, ["down", True])
+        self.accept("a", self.update_key_map, ["left", True])
+        self.accept("d", self.update_key_map, ["right", True])
+
+        self.accept("arrow_up", self.update_key_map, ["up", True])
+        self.accept("arrow_down", self.update_key_map, ["down", True])
+        self.accept("arrow_left", self.update_key_map, ["left", True])
+        self.accept("arrow_right", self.update_key_map, ["right", True])
+
+        self.accept("mouse1", self.update_key_map, ["shoot", True])
+
+        self.accept("w-up", self.update_key_map, ["up", False])
+        self.accept("s-up", self.update_key_map, ["down", False])
+        self.accept("a-up", self.update_key_map, ["left", False])
+        self.accept("d-up", self.update_key_map, ["right", False])
+
+        self.accept("arrow_up-up", self.update_key_map, ["up", False])
+        self.accept("arrow_down-up", self.update_key_map, ["down", False])
+        self.accept("arrow_left-up", self.update_key_map, ["left", False])
+        self.accept("arrow_right-up", self.update_key_map, ["right", False])
+
+        self.accept("mouse1-up", self.update_key_map, ["shoot", False])
 
         self.updateTask = self.taskMgr.add(self.update, "update")
 
@@ -76,9 +87,44 @@ class Game(ShowBase):
 
         self.accept("mouse1", self.mouse_click)
 
+        self.taskMgr.add(self.camera_control, "Camera Control")
+
+    def camera_control(self, task):
+        dt = globalClock.getDt()
+        if dt > 0.20:
+            return task.cont
+
+        if self.mouseWatcherNode.hasMouse():
+            mpos = self.mouseWatcherNode.getMouse()
+            self.camera.setP(mpos.getY() * 30)
+            self.camera.setH(mpos.getX() * -50)
+            if 0.1 > mpos.getX() > -0.1:
+                self.camera.setH(self.camera.getH())
+            else:
+                self.camera.setH(self.camera.getH() + mpos.getX() * -1)
+
+        if self.keyMap["up"]:
+            self.camera.setY(self.camera, 15 * dt)
+            print("camera moving forward")
+            return task.cont
+        elif self.keyMap["down"]:
+            self.camera.setY(self.camera, -15 * dt)
+            print("camera moving backwards")
+            return task.cont
+        elif self.keyMap["left"]:
+            self.camera.setX(self.camera, -10 * dt)
+            print("camera moving left")
+            return task.cont
+        elif self.keyMap["right"]:
+            self.camera.setX(self.camera, 10 * dt)
+            print("camera moving right")
+            return task.cont
+        else:
+            return task.cont
+
     # this method will be called when the event of pressing one of the available keys will occur
-    def updateKeyMap(self, controlName, controlState):
-        self.keyMap[controlName] = controlState
+    def update_key_map(self, key, value):
+        self.keyMap[key] = value
         # print(controlName, "set to", controlState)
 
     def create_apples(self):
@@ -122,7 +168,7 @@ class Game(ShowBase):
                 self.pq.sortEntries()
 
                 pickedObj = self.pq.getEntry(0).getIntoNodePath()
-                parent_picked_obj = pickedObj.parent.parent # while debugging, discovered that needed to check the great-grandfather node
+                parent_picked_obj = pickedObj.parent.parent  # while debugging, discovered that needed to check the great-grandfather node
 
                 if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
                     print("You got it right!")
