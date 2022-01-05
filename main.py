@@ -46,7 +46,7 @@ class Game(ShowBase):
         self.accept("arrow_left", self.update_key_map, ["left", True])
         self.accept("arrow_right", self.update_key_map, ["right", True])
 
-        self.accept("mouse1", self.update_key_map, ["shoot", True])
+        # self.accept("mouse1", self.update_key_map, ["shoot", True])
 
         self.accept("w-up", self.update_key_map, ["up", False])
         self.accept("s-up", self.update_key_map, ["down", False])
@@ -58,7 +58,11 @@ class Game(ShowBase):
         self.accept("arrow_left-up", self.update_key_map, ["left", False])
         self.accept("arrow_right-up", self.update_key_map, ["right", False])
 
-        self.accept("mouse1-up", self.update_key_map, ["shoot", False])
+        # self.accept("mouse1-up", self.update_key_map, ["shoot", False])
+
+        self.accept("mouse1", self.mouse_click)
+        self.accept('wheel_up', self.zoom_in)
+        self.accept('wheel_down', self.zoom_out)
 
         self.updateTask = self.taskMgr.add(self.update, "update")
 
@@ -85,9 +89,13 @@ class Game(ShowBase):
         self.pickerNode.addSolid(self.pickerRay)
         self.picker.addCollider(self.pickerNP, self.pq)
 
-        self.accept("mouse1", self.mouse_click)
-
         self.taskMgr.add(self.camera_control, "Camera Control")
+
+    def zoom_in(self):
+        self.camera.set_y(self.camera, 5)
+
+    def zoom_out(self):
+        self.camera.set_y(self.camera, -5)
 
     def camera_control(self, task):
         dt = globalClock.getDt()
@@ -102,7 +110,7 @@ class Game(ShowBase):
                 self.camera.setH(self.camera.getH())
             else:
                 self.camera.setH(self.camera.getH() + mpos.getX() * -1)
-
+        '''
         if self.keyMap["up"]:
             self.camera.setY(self.camera, 15 * dt)
             print("camera moving forward")
@@ -120,7 +128,8 @@ class Game(ShowBase):
             print("camera moving right")
             return task.cont
         else:
-            return task.cont
+        '''
+        return task.cont
 
     # this method will be called when the event of pressing one of the available keys will occur
     def update_key_map(self, key, value):
@@ -192,15 +201,16 @@ class Game(ShowBase):
             # timestamps.clear()
             self.create_apples()
 
-        # box movement
+        # camera movement
+
         if self.keyMap["up"]:
-            self.box.setPos(self.box.getPos() + Vec3(0, 5.0 * dt, 0))
+            self.camera.setPos(self.camera.getPos() + Vec3(0, 15.0 * dt, 0))
         if self.keyMap["down"]:
-            self.box.setPos(self.box.getPos() + Vec3(0, -5.0 * dt, 0))
+            self.camera.setPos(self.camera.getPos() + Vec3(0, -15.0 * dt, 0))
         if self.keyMap["left"]:
-            self.box.setPos(self.box.getPos() + Vec3(-5.0 * dt, 0, 0))
+            self.camera.setPos(self.camera.getPos() + Vec3(-10.0 * dt, 0, 0))
         if self.keyMap["right"]:
-            self.box.setPos(self.box.getPos() + Vec3(5.0 * dt, 0, 0))
+            self.camera.setPos(self.camera.getPos() + Vec3(10.0 * dt, 0, 0))
         # if self.keyMap["shoot"]:
         # print("Zap!")
 
