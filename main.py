@@ -46,7 +46,7 @@ class Game(ShowBase):
         self.accept("arrow_left", self.update_key_map, ["left", True])
         self.accept("arrow_right", self.update_key_map, ["right", True])
 
-        # self.accept("mouse1", self.update_key_map, ["shoot", True])
+        self.accept("mouse3", self.update_key_map, ["shoot", True])
 
         self.accept("w-up", self.update_key_map, ["up", False])
         self.accept("s-up", self.update_key_map, ["down", False])
@@ -58,7 +58,7 @@ class Game(ShowBase):
         self.accept("arrow_left-up", self.update_key_map, ["left", False])
         self.accept("arrow_right-up", self.update_key_map, ["right", False])
 
-        # self.accept("mouse1-up", self.update_key_map, ["shoot", False])
+        self.accept("mouse3-up", self.update_key_map, ["shoot", False])
 
         self.accept("mouse1", self.mouse_click)
         self.accept('wheel_up', self.zoom_in)
@@ -177,6 +177,15 @@ class Game(ShowBase):
                 else:
                     print("Wrong, try again!")
 
+    def shoot(self):
+        print("shooting")
+        mousePos = self.mouseWatcherNode.getMouse()
+        mousePos3d = (mousePos[0], 0, mousePos[1])
+        print(mousePos3d)
+        
+        # mousePosButton = button.getRelativePoint(self.render, mousePos3d)
+
+
     # update loop
     def update(self, task):
 
@@ -192,11 +201,9 @@ class Game(ShowBase):
             # timestamps.clear()
             self.create_apples()
 
-        # camera movement
 
-       
-        # if self.keyMap["shoot"]:
-        # print("Zap!")
+        if self.keyMap["shoot"]:
+            self.shoot()
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
