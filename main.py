@@ -110,25 +110,16 @@ class Game(ShowBase):
                 self.camera.setH(self.camera.getH())
             else:
                 self.camera.setH(self.camera.getH() + mpos.getX() * -1)
-        '''
+
         if self.keyMap["up"]:
-            self.camera.setY(self.camera, 15 * dt)
-            print("camera moving forward")
-            return task.cont
-        elif self.keyMap["down"]:
-            self.camera.setY(self.camera, -15 * dt)
-            print("camera moving backwards")
-            return task.cont
-        elif self.keyMap["left"]:
-            self.camera.setX(self.camera, -10 * dt)
-            print("camera moving left")
-            return task.cont
-        elif self.keyMap["right"]:
-            self.camera.setX(self.camera, 10 * dt)
-            print("camera moving right")
-            return task.cont
-        else:
-        '''
+            self.camera.setPos(self.camera.getPos() + Vec3(0, 15.0 * dt, 0))
+        if self.keyMap["down"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(0, -15.0 * dt, 0))
+        if self.keyMap["left"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(-10.0 * dt, 0, 0))
+        if self.keyMap["right"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(10.0 * dt, 0, 0))
+
         return task.cont
 
     # this method will be called when the event of pressing one of the available keys will occur
@@ -203,14 +194,7 @@ class Game(ShowBase):
 
         # camera movement
 
-        if self.keyMap["up"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(0, 15.0 * dt, 0))
-        if self.keyMap["down"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(0, -15.0 * dt, 0))
-        if self.keyMap["left"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(-10.0 * dt, 0, 0))
-        if self.keyMap["right"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(10.0 * dt, 0, 0))
+       
         # if self.keyMap["shoot"]:
         # print("Zap!")
 
