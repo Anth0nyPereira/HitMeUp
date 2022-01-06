@@ -11,11 +11,11 @@ out vec3 vNormal;
 uniform vec4 lightPosition;
 uniform vec3 viewerPosition;
 
-// Model view and projection matrices
+// model-view-projection matrix
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 p3d_ModelMatrix;
+uniform mat4 p3d_ViewMatrix;
+uniform mat4 p3d_ProjectionMatrix;
 
 
 uniform vec4 lightColor;
@@ -32,11 +32,11 @@ uniform Material material;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    gl_Position = p3d_ProjectionMatrix * p3d_ViewMatrix * p3d_ModelMatrix * vec4(position, 1.0);
 
-    vec3 pos = vec3(model * vec4(position, 1.0));
+    vec3 pos = vec3(p3d_ModelMatrix * vec4(position, 1.0));
 
-    vNormal = normalize(mat3(transpose(inverse(model))) * normal);  // need to check: its normal matrix...
+    vNormal = normalize(mat3(transpose(inverse(p3d_ModelMatrix))) * normal);  // need to check: its normal matrix...
 
 
     // ambient component

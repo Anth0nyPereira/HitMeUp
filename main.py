@@ -212,6 +212,7 @@ class Game(ShowBase):
         available_apples[0].setShaderInput("material.specular", (1.0, 1.0, 1.0, 1.0))
         available_apples[0].setShaderInput("material.diffuse", (1.0, 1.0, 0, 1.0))
         available_apples[0].setShaderInput("material.shininess", 32.0)
+
         # available_apples[0].setShaderInput("model", available_apples[0].node().) TODO: how to calculate model,
         #  view and projection matrixes
 
@@ -224,7 +225,7 @@ class Game(ShowBase):
 
     # update loop
     def update(self, task):
-        # self.add_shader()
+        self.add_shader()
         # self.add_shader2()
 
         # Get the amount of time since the last update
