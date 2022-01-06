@@ -92,17 +92,18 @@ class Game(ShowBase):
         self.taskMgr.add(self.camera_control, "Camera Control")
 
         # lighting and shading experiment
-
+        '''
         plight = PointLight('plight')
         plight.setColor((0.4, 0.4, 0.0, 0.3))
         plnp = self.render.attachNewNode(plight)
         plnp.setPos(20, -20, 0)
         self.render.setLight(plnp)
+        '''
 
-        alight = AmbientLight('alight')
-        alight.setColor((0.2, 0.2, 0.2, 1))
-        alnp = self.render.attachNewNode(alight)
-        self.render.setLight(alnp)
+        self.alight = AmbientLight('alight')
+        self.alight.setColor((0.2, 0.2, 0.2, 1))
+        self.alight_nodepath = self.render.attachNewNode(self.alight)
+        self.render.setLight(self.alight_nodepath)
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -205,13 +206,15 @@ class Game(ShowBase):
 
     def add_shader(self):
         available_apples[0]: NodePath
-        available_apples[0].setShaderInput("lightColor", (1.0, 0.5, 0.5, 1.0))
-        available_apples[0].setShaderInput("lightPosition", (100, 0, 0))
+        available_apples[0].setShaderInput("lightColor", self.alight.getColor())
+        available_apples[0].setShaderInput("lightPosition", self.alight_nodepath.getPos())
         available_apples[0].setShaderInput("viewerPosition", (self.camera.getPos()))
+        '''
         available_apples[0].setShaderInput("material.ambient", (0.6, 0.6, 0, 1.0))
         available_apples[0].setShaderInput("material.specular", (1.0, 1.0, 1.0, 1.0))
         available_apples[0].setShaderInput("material.diffuse", (1.0, 1.0, 0, 1.0))
         available_apples[0].setShaderInput("material.shininess", 32.0)
+        '''
 
         # available_apples[0].setShaderInput("model", available_apples[0].node().) TODO: how to calculate model,
         #  view and projection matrixes

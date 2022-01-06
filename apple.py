@@ -10,13 +10,13 @@ class Apple():
         self.apple.setScale(0.02, 0.02, 0.02)
 
         # setting materials is not working also
-        '''
+
         myMaterial = Material()
         myMaterial.setShininess(5.0)  # Make this material shiny
         myMaterial.setAmbient((0, 0, 1, 1))  # Make this material blue
         myMaterial.setShininess(0.128)
         self.apple.setMaterial(myMaterial)
-        '''
+
 
 
     def get_apple(self):
