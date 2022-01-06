@@ -1,78 +1,213 @@
 from direct.showbase.ShowBaseGlobal import globalClock
-from panda3d.core import loadPrcFile # funct import to load configurations file
+from panda3d.bullet import BulletWorld
+from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
+    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
+from apple import Apple
+from color import Color
+import random
+from math import pi, sin, cos
 
 loadPrcFile("config/conf.prc")
+
+available_apples = []
+timestamps = []
+
 
 class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
-        self.box = self.loader.loadModel("models/box") # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        self.box.setPos(0, 10, 0) # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
-        self.box.reparentTo(self.render) # makes the object appear in the scene
+        self.disableMouse()
 
-        panda = self.loader.loadModel("models/panda")
-        panda.setPos(-2, 10, 0) # set position
-        panda.setScale(0.2, 0.2, 0.2) # set scale
-        panda.reparentTo(self.render)
-        # panda.reparentTo(box) # box is parented to the renderer, thats why panda still appears in the scene
+        self.box = self.loader.loadModel(
+            "models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
+        self.box.setPos(0, 50,
+                        0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
+        self.box.reparentTo(self.render)  # makes the object appear in the scene
 
-        apple = self.loader.loadModel("objects/apple.stl")
-        apple.reparentTo(self.render)
+        self.create_apples()
 
         # dict that stores keys to control the game itself
-        self.keyMap = {
-            "up": False,
-            "down": False,
-            "left": False,
-            "right": False,
-            "shoot": False
-        }
+        self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
+                       "s": False, "a": False, "d": False, }
 
-        # tell panda3d to handle the events -- tell directobject class to accept the events, a pair foreach key, when it's pressed and when it's released
-        self.accept("w", self.updateKeyMap, ["up", True])
-        self.accept("w-up", self.updateKeyMap, ["up", False])
-        self.accept("s", self.updateKeyMap, ["down", True])
-        self.accept("s-up", self.updateKeyMap, ["down", False])
-        self.accept("a", self.updateKeyMap, ["left", True])
-        self.accept("a-up", self.updateKeyMap, ["left", False])
-        self.accept("d", self.updateKeyMap, ["right", True])
-        self.accept("d-up", self.updateKeyMap, ["right", False])
-        self.accept("mouse1", self.updateKeyMap, ["shoot", True])
-        self.accept("mouse1-up", self.updateKeyMap, ["shoot", False])
+        # tell panda3d to handle the events -- tell directobject class to accept the events, a pair for each key,
+        # when it's pressed and when it's released
+        self.accept("w", self.update_key_map, ["up", True])
+        self.accept("s", self.update_key_map, ["down", True])
+        self.accept("a", self.update_key_map, ["left", True])
+        self.accept("d", self.update_key_map, ["right", True])
+
+        self.accept("arrow_up", self.update_key_map, ["up", True])
+        self.accept("arrow_down", self.update_key_map, ["down", True])
+        self.accept("arrow_left", self.update_key_map, ["left", True])
+        self.accept("arrow_right", self.update_key_map, ["right", True])
+
+        self.accept("mouse3", self.update_key_map, ["shoot", True])
+
+        self.accept("w-up", self.update_key_map, ["up", False])
+        self.accept("s-up", self.update_key_map, ["down", False])
+        self.accept("a-up", self.update_key_map, ["left", False])
+        self.accept("d-up", self.update_key_map, ["right", False])
+
+        self.accept("arrow_up-up", self.update_key_map, ["up", False])
+        self.accept("arrow_down-up", self.update_key_map, ["down", False])
+        self.accept("arrow_left-up", self.update_key_map, ["left", False])
+        self.accept("arrow_right-up", self.update_key_map, ["right", False])
+
+        self.accept("mouse3-up", self.update_key_map, ["shoot", False])
+
+        self.accept("mouse1", self.mouse_click)
+        self.accept('wheel_up', self.zoom_in)
+        self.accept('wheel_down', self.zoom_out)
 
         self.updateTask = self.taskMgr.add(self.update, "update")
 
         self.axis_helper = AxisHelper(10).get_axis()
         self.axis_helper.reparentTo(self.render)
 
+        self.update_counter = 0
+
+        self.last_mouse_position = Vec2(0, 0)
+
+        self.camera.setPos(0, -10, 0)
+
+        # ser collisionTraverser  and collision handler
+        self.picker = CollisionTraverser()
+        self.picker.showCollisions(self.render)
+        self.pq = CollisionHandlerQueue()
+
+        self.pickerNode = CollisionNode("mouse_raycast")
+        self.pickerNP = self.camera.attachNewNode(self.pickerNode)
+        self.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        self.box.setCollideMask(BitMask32.bit(1))
+
+        self.pickerRay = CollisionRay()
+        self.pickerNode.addSolid(self.pickerRay)
+        self.picker.addCollider(self.pickerNP, self.pq)
+
+        self.taskMgr.add(self.camera_control, "Camera Control")
+
+    def zoom_in(self):
+        self.camera.set_y(self.camera, 5)
+
+    def zoom_out(self):
+        self.camera.set_y(self.camera, -5)
+
+    def camera_control(self, task):
+        dt = globalClock.getDt()
+        if dt > 0.20:
+            return task.cont
+
+        if self.mouseWatcherNode.hasMouse():
+            mpos = self.mouseWatcherNode.getMouse()
+            self.camera.setP(mpos.getY() * 30)
+            self.camera.setH(mpos.getX() * -50)
+            if 0.1 > mpos.getX() > -0.1:
+                self.camera.setH(self.camera.getH())
+            else:
+                self.camera.setH(self.camera.getH() + mpos.getX() * -1)
+
+        if self.keyMap["up"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(0, 15.0 * dt, 0))
+        if self.keyMap["down"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(0, -15.0 * dt, 0))
+        if self.keyMap["left"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(-10.0 * dt, 0, 0))
+        if self.keyMap["right"]:
+            self.camera.setPos(self.camera.getPos() + Vec3(10.0 * dt, 0, 0))
+
+        return task.cont
+
     # this method will be called when the event of pressing one of the available keys will occur
-    def updateKeyMap(self, controlName, controlState):
-        self.keyMap[controlName] = controlState
-        print(controlName, "set to", controlState)
+    def update_key_map(self, key, value):
+        self.keyMap[key] = value
+        # print(controlName, "set to", controlState)
+
+    def create_apples(self):
+        # get 2 random colors
+        tuple_colors = Color.generate_2_random_colors()
+
+        # create 3 identical apples
+        for i in range(3):
+            apple = Apple(self.loader, tuple_colors[0].value).get_apple()
+            apple.setCollideMask(BitMask32.bit(1))
+            apple.setName("other")
+            available_apples.append(apple)
+
+        # the ugly duck :(
+        apple = Apple(self.loader, tuple_colors[1].value).get_apple()
+        apple.setCollideMask(BitMask32.bit(1))
+        apple.setName("outlandish")
+        available_apples.append(apple)
+
+        # positioning all apples
+        random.shuffle(available_apples)
+        pos = 0
+        for apple in available_apples:
+            apple.setPos(pos, 0, 0)
+            apple.reparentTo(self.render)
+            pos += 1
+
+    def mouse_click(self):
+
+        # check if we have access to the mouse
+        if self.mouseWatcherNode.hasMouse():
+
+            # get the mouse position
+            mpos = self.mouseWatcherNode.getMouse()
+
+            # set the position of the ray based on the mouse position
+            self.pickerRay.setFromLens(self.camNode, mpos.getX(), mpos.getY())
+            self.picker.traverse(self.render)
+            # if we have hit something sort the hits so that the closest is first and highlight the node
+            if self.pq.getNumEntries() > 0:
+                self.pq.sortEntries()
+
+                pickedObj = self.pq.getEntry(0).getIntoNodePath()
+                parent_picked_obj = pickedObj.parent.parent  # while debugging, discovered that needed to check the great-grandfather node
+
+                if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
+                    print("You got it right!")
+                    pickedObj.detachNode()
+                    pickedObj.removeNode()
+                else:
+                    print("Wrong, try again!")
+
+    def shoot(self):
+        print("shooting")
+        mousePos = self.mouseWatcherNode.getMouse()
+        mousePos3d = (mousePos[0], 0, mousePos[1])
+        print(mousePos3d)
+        
+        # mousePosButton = button.getRelativePoint(self.render, mousePos3d)
+
 
     # update loop
     def update(self, task):
+
         # Get the amount of time since the last update
         dt = globalClock.getDt()
+        # print(dt)
+        timestamps.append(dt)
+        if self.update_counter % 5000 == 0:
+            for i in range(len(available_apples)):
+                available_apples[i].detachNode()
+                available_apples[i].removeNode()
+            available_apples.clear()
+            # timestamps.clear()
+            self.create_apples()
 
-        # If any movement keys are pressed, use the above time
-        # to calculate how far to move the character, and apply that.
-        if self.keyMap["up"]:
-            self.box.setPos(self.box.getPos() + Vec3(0, 5.0 * dt, 0))
-        if self.keyMap["down"]:
-            self.box.setPos(self.box.getPos() + Vec3(0, -5.0 * dt, 0))
-        if self.keyMap["left"]:
-            self.box.setPos(self.box.getPos() + Vec3(-5.0 * dt, 0, 0))
-        if self.keyMap["right"]:
-            self.box.setPos(self.box.getPos() + Vec3(5.0 * dt, 0, 0))
+
         if self.keyMap["shoot"]:
-            print("Zap!")
+            self.shoot()
 
-        return task.cont # task.cont exists to make this task run forever
+        self.update_counter += 1
+        return task.cont  # task.cont exists to make this task run forever
+
 
 game = Game()
 
