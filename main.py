@@ -1,7 +1,9 @@
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
-    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath  # funct import to load configurations file
+    CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath, \
+    Shader, DirectionalLight, ShadeModelAttrib, PointLight, Material, \
+    AmbientLight  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from axis_helper import AxisHelper
@@ -22,11 +24,9 @@ class Game(ShowBase):
 
         self.disableMouse()
 
-        self.box = self.loader.loadModel(
-            "models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        self.box.setPos(0, 50,
-                        0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
-        self.box.reparentTo(self.render)  # makes the object appear in the scene
+        # self.box = self.loader.loadModel("models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
+        # self.box.setPos(0, 50, 0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
+        # self.box.reparentTo(self.render)  # makes the object appear in the scene
 
         self.create_apples()
 
@@ -77,19 +77,32 @@ class Game(ShowBase):
 
         # ser collisionTraverser  and collision handler
         self.picker = CollisionTraverser()
-        self.picker.showCollisions(self.render)
+        # self.picker.showCollisions(self.render)
         self.pq = CollisionHandlerQueue()
 
         self.pickerNode = CollisionNode("mouse_raycast")
         self.pickerNP = self.camera.attachNewNode(self.pickerNode)
         self.pickerNode.setFromCollideMask(BitMask32.bit(1))
-        self.box.setCollideMask(BitMask32.bit(1))
+        # self.box.setCollideMask(BitMask32.bit(1))
 
         self.pickerRay = CollisionRay()
         self.pickerNode.addSolid(self.pickerRay)
         self.picker.addCollider(self.pickerNP, self.pq)
 
         self.taskMgr.add(self.camera_control, "Camera Control")
+
+        # lighting and shading experiment
+
+        plight = PointLight('plight')
+        plight.setColor((0.4, 0.4, 0.0, 0.3))
+        plnp = self.render.attachNewNode(plight)
+        plnp.setPos(20, -20, 0)
+        self.render.setLight(plnp)
+
+        alight = AmbientLight('alight')
+        alight.setColor((0.2, 0.2, 0.2, 1))
+        alnp = self.render.attachNewNode(alight)
+        self.render.setLight(alnp)
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -167,7 +180,7 @@ class Game(ShowBase):
             if self.pq.getNumEntries() > 0:
                 self.pq.sortEntries()
 
-                pickedObj = self.pq.getEntry(0).getIntoNodePath()
+                pickedObj: NodePath = self.pq.getEntry(0).getIntoNodePath()
                 parent_picked_obj = pickedObj.parent.parent  # while debugging, discovered that needed to check the great-grandfather node
 
                 if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
@@ -182,12 +195,37 @@ class Game(ShowBase):
         mousePos = self.mouseWatcherNode.getMouse()
         mousePos3d = (mousePos[0], 0, mousePos[1])
         print(mousePos3d)
-        
+
         # mousePosButton = button.getRelativePoint(self.render, mousePos3d)
 
+    def add_shader2(self):
+        print("entering add_shader2")
+        # available_apples[0].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MFlat)) # this doesnt work, go next
+        # available_apples[1].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MSmooth))
+
+    def add_shader(self):
+        available_apples[0]: NodePath
+        available_apples[0].setShaderInput("lightColor", (1.0, 0.5, 0.5, 1.0))
+        available_apples[0].setShaderInput("lightPosition", (100, 0, 0))
+        available_apples[0].setShaderInput("viewerPosition", (self.camera.getPos()))
+        available_apples[0].setShaderInput("material.ambient", (0.6, 0.6, 0, 1.0))
+        available_apples[0].setShaderInput("material.specular", (1.0, 1.0, 1.0, 1.0))
+        available_apples[0].setShaderInput("material.diffuse", (1.0, 1.0, 0, 1.0))
+        available_apples[0].setShaderInput("material.shininess", 32.0)
+        # available_apples[0].setShaderInput("model", available_apples[0].node().) TODO: how to calculate model,
+        #  view and projection matrixes
+
+        shader = Shader.load(Shader.SL_GLSL,
+                             vertex="shaders/vertex_shader_Illumination_pervertex.glsl",
+                             fragment="shaders/fragment_shader_illumination_pervertex.glsl")
+        available_apples[0].setShader(shader)
+
+        # available_apples[0].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MFlat))
 
     # update loop
     def update(self, task):
+        # self.add_shader()
+        # self.add_shader2()
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
