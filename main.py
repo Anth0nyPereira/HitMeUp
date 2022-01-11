@@ -6,6 +6,8 @@ from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
     AmbientLight  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
+from panda3d.physics import ForceNode, LinearVectorForce
+
 from axis_helper import AxisHelper
 from apple import Apple
 from color import Color
@@ -92,19 +94,17 @@ class Game(ShowBase):
         self.taskMgr.add(self.camera_control, "Camera Control")
 
         # lighting and shading experiment
-        '''
-        plight = PointLight('plight')
-        plight.setColor((0.4, 0.4, 0.0, 0.3))
-        plnp = self.render.attachNewNode(plight)
-        plnp.setPos(20, -20, 0)
-        self.render.setLight(plnp)
-        
+
+
+        # available_apples[0].node().parent.parent.setLight(self.alnp2)
         '''
         self.alight = AmbientLight('alight')
         self.alight.setColor((0.2, 0.2, 0.2, 1))
         self.alight_nodepath = self.render.attachNewNode(self.alight)
         self.render.setLight(self.alight_nodepath)
+        '''
 
+        self.set_physics()
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -148,13 +148,15 @@ class Game(ShowBase):
 
         # create 3 identical apples
         for i in range(3):
-            apple = Apple(self.loader, tuple_colors[0].value).get_apple()
+            apple = Apple(self.loader, tuple_colors[0].value, self.render).get_apple()
             apple.setCollideMask(BitMask32.bit(1))
             apple.setName("other")
             available_apples.append(apple)
 
         # the ugly duck :(
-        apple = Apple(self.loader, tuple_colors[1].value).get_apple()
+        apple = Apple(self.loader, tuple_colors[1].value, self.render, True).get_apple()
+        print(type(apple))
+
         apple.setCollideMask(BitMask32.bit(1))
         apple.setName("outlandish")
         available_apples.append(apple)
@@ -207,8 +209,6 @@ class Game(ShowBase):
 
     # update loop
     def update(self, task):
-        # self.add_shader()
-        # self.add_shader2()
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
@@ -222,12 +222,22 @@ class Game(ShowBase):
             # timestamps.clear()
             self.create_apples()
 
-
         if self.keyMap["shoot"]:
             self.shoot()
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
+
+    def set_physics(self):
+        # enable physics
+        self.enableParticles()
+
+        # set the gravity
+        gravityFN = ForceNode('world-forces')
+        gravityFNP = self.render.attachNewNode(gravityFN)
+        gravityForce = LinearVectorForce(0, 0, -9.81)  # gravity acceleration
+        gravityFN.addForce(gravityForce)
+        self.physicsMgr.addLinearForce(gravityForce)
 
 
 game = Game()
