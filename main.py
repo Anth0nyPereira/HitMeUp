@@ -98,12 +98,13 @@ class Game(ShowBase):
         plnp = self.render.attachNewNode(plight)
         plnp.setPos(20, -20, 0)
         self.render.setLight(plnp)
+        
         '''
-
         self.alight = AmbientLight('alight')
         self.alight.setColor((0.2, 0.2, 0.2, 1))
         self.alight_nodepath = self.render.attachNewNode(self.alight)
         self.render.setLight(self.alight_nodepath)
+
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -228,7 +229,7 @@ class Game(ShowBase):
 
     # update loop
     def update(self, task):
-        self.add_shader()
+        # self.add_shader()
         # self.add_shader2()
 
         # Get the amount of time since the last update
