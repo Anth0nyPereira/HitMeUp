@@ -158,8 +158,9 @@ class Game(ShowBase):
         # the ugly duck :(
         apple_object = Apple(self.loader, tuple_colors[1].value, self.render, True)
         apple = apple_object.get_apple()
-        apple_object.set_light_to_apple()
-        print(type(apple)) # nodepath
+        # apple_object.set_light_to_apple()
+        apple_object.set_texture_to_apple()
+        # print(type(apple)) # nodepath
 
         apple.setCollideMask(BitMask32.bit(1))
         apple.setName("outlandish")
