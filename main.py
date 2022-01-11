@@ -205,28 +205,6 @@ class Game(ShowBase):
         # available_apples[0].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MFlat)) # this doesnt work, go next
         # available_apples[1].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MSmooth))
 
-    def add_shader(self):
-        available_apples[0]: NodePath
-        available_apples[0].setShaderInput("lightColor", self.alight.getColor())
-        available_apples[0].setShaderInput("lightPosition", self.alight_nodepath.getPos())
-        available_apples[0].setShaderInput("viewerPosition", (self.camera.getPos()))
-        '''
-        available_apples[0].setShaderInput("material.ambient", (0.6, 0.6, 0, 1.0))
-        available_apples[0].setShaderInput("material.specular", (1.0, 1.0, 1.0, 1.0))
-        available_apples[0].setShaderInput("material.diffuse", (1.0, 1.0, 0, 1.0))
-        available_apples[0].setShaderInput("material.shininess", 32.0)
-        '''
-
-        # available_apples[0].setShaderInput("model", available_apples[0].node().) TODO: how to calculate model,
-        #  view and projection matrixes
-
-        shader = Shader.load(Shader.SL_GLSL,
-                             vertex="shaders/vertex_shader_Illumination_pervertex.glsl",
-                             fragment="shaders/fragment_shader_illumination_pervertex.glsl")
-        available_apples[0].setShader(shader)
-
-        # available_apples[0].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MFlat))
-
     # update loop
     def update(self, task):
         # self.add_shader()
