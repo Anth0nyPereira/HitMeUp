@@ -148,14 +148,18 @@ class Game(ShowBase):
 
         # create 3 identical apples
         for i in range(3):
-            apple = Apple(self.loader, tuple_colors[0].value, self.render).get_apple()
+            apple_object = Apple(self.loader, tuple_colors[0].value, self.render)
+            apple = apple_object.get_apple()
             apple.setCollideMask(BitMask32.bit(1))
             apple.setName("other")
+            apple_object.set_light_to_apple()
             available_apples.append(apple)
 
         # the ugly duck :(
-        apple = Apple(self.loader, tuple_colors[1].value, self.render, True).get_apple()
-        print(type(apple))
+        apple_object = Apple(self.loader, tuple_colors[1].value, self.render, True)
+        apple = apple_object.get_apple()
+        apple_object.set_light_to_apple()
+        print(type(apple)) # nodepath
 
         apple.setCollideMask(BitMask32.bit(1))
         apple.setName("outlandish")
