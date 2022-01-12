@@ -3,7 +3,7 @@ from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath, \
     Shader, DirectionalLight, ShadeModelAttrib, PointLight, Material, \
-    AmbientLight  # funct import to load configurations file
+    AmbientLight, CardMaker  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from panda3d.physics import ForceNode, LinearVectorForce
@@ -94,8 +94,6 @@ class Game(ShowBase):
         self.taskMgr.add(self.camera_control, "Camera Control")
 
         # lighting and shading experiment
-
-
         # available_apples[0].node().parent.parent.setLight(self.alnp2)
         '''
         self.alight = AmbientLight('alight')
@@ -104,7 +102,8 @@ class Game(ShowBase):
         self.render.setLight(self.alight_nodepath)
         '''
 
-        self.set_physics()
+        self.card_maker = None
+        self.create_card_maker()
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -212,6 +211,15 @@ class Game(ShowBase):
         # available_apples[0].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MFlat)) # this doesnt work, go next
         # available_apples[1].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MSmooth))
 
+    def create_card_maker(self):
+        cm = CardMaker("plane")
+        # set the size of the card (left, right, bottom, top - in XZ-plane)
+        cm.setFrame(-0.5, 0.5, -0.5, 0.5)
+        self.card_maker = self.render.attachNewNode(cm.generate())
+
+        road_tex = self.loader.loadTexture("textures/sample.jpg")
+        self.card_maker.setTexture(road_tex)
+
     # update loop
     def update(self, task):
 
@@ -233,16 +241,7 @@ class Game(ShowBase):
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
 
-    def set_physics(self):
-        # enable physics
-        self.enableParticles()
 
-        # set the gravity
-        gravityFN = ForceNode('world-forces')
-        gravityFNP = self.render.attachNewNode(gravityFN)
-        gravityForce = LinearVectorForce(0, 0, -9.81)  # gravity acceleration
-        gravityFN.addForce(gravityForce)
-        self.physicsMgr.addLinearForce(gravityForce)
 
 
 game = Game()
