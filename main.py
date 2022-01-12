@@ -77,7 +77,7 @@ class Game(ShowBase):
 
         self.last_mouse_position = Vec2(0, 0)
 
-        self.camera.setPos(0, -10, 0)
+        self.camera.setPos(0, -10, 0.5)
 
         # ser collisionTraverser  and collision handler
         self.picker = CollisionTraverser()
