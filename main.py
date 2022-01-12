@@ -1,3 +1,5 @@
+import copy
+
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
@@ -12,7 +14,7 @@ from axis_helper import AxisHelper
 from apple import Apple
 from color import Color
 import random
-from math import pi, sin, cos
+
 
 loadPrcFile("config/conf.prc")
 
@@ -48,7 +50,7 @@ class Game(ShowBase):
         self.accept("arrow_left", self.update_key_map, ["left", True])
         self.accept("arrow_right", self.update_key_map, ["right", True])
 
-        self.accept("mouse3", self.update_key_map, ["shoot", True])
+        # self.accept("mouse3", self.update_key_map, ["shoot", True])
 
         self.accept("w-up", self.update_key_map, ["up", False])
         self.accept("s-up", self.update_key_map, ["down", False])
@@ -253,6 +255,8 @@ class Game(ShowBase):
 
         self.accept("space", self.shoot)
 
+        self.create_pandas_runway()
+
     def shoot(self):
         self.bullets.append(self.shootBullet())
 
@@ -316,6 +320,25 @@ class Game(ShowBase):
         bulletNP.removeNode()
         self.bullets.remove(bulletNP)
         return task.done
+
+    def create_pandas_runway(self):
+        self.panda_runway = NodePath("panda_runway")
+        panda_sample = self.loader.loadModel("models/panda")
+        panda_sample.setScale(0.1, 0.1, 0.1)
+        panda_sample.setH(90)
+        counter = -10
+        while counter < 0:
+            panda_left = copy.deepcopy(panda_sample)
+            panda_left.setPos(-5, counter, 0)
+            panda_left.reparentTo(self.panda_runway)
+
+            panda_right = copy.deepcopy(panda_sample)
+            panda_right.setPos(-3, counter, 0)
+            panda_right.setH(-90)
+            panda_right.reparentTo(self.panda_runway)
+            counter += 1.5
+        self.panda_runway.reparentTo(self.render)
+
 
     # update loop
     def update(self, task):
