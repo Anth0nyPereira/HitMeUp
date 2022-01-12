@@ -15,6 +15,7 @@ from apple import Apple
 from color import Color
 import random
 
+from plane import Plane
 
 loadPrcFile("config/conf.prc")
 
@@ -106,6 +107,8 @@ class Game(ShowBase):
 
         self.card_maker = None
         self.create_card_maker()
+
+        self.create_floor()
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -320,6 +323,11 @@ class Game(ShowBase):
         bulletNP.removeNode()
         self.bullets.remove(bulletNP)
         return task.done
+
+    def create_floor(self):
+        plane: NodePath = Plane(self.render, -100, 100, self.loader, "textures/sample.jpg").get_plane()
+        plane.setPos(50, 0, 0)
+        print(plane.getPos())
 
     def create_pandas_runway(self):
         self.panda_runway = NodePath("panda_runway")

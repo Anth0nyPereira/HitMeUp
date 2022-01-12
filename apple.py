@@ -1,7 +1,7 @@
 from panda3d.core import NodePath, Material, AmbientLight, PointLight
 
 
-class Apple():
+class Apple:
     def __init__(self, loader, color, render=None, is_intruder=False):  # color should be a Vec4
         # self.apple: NodePath = loader.loadModel("objects/apple.stl")
         self.apple: NodePath = loader.loadModel("models/panda")
