@@ -325,8 +325,8 @@ class Game(ShowBase):
         return task.done
 
     def create_floor(self):
-        plane: NodePath = Plane(self.render, -100, 100, self.loader, "textures/sample.jpg").get_plane()
-        plane.setPos(50, 0, 0)
+        plane: NodePath = Plane(self.render, 12, 2.5, self.loader, "textures/neon.jpg").get_plane()
+        plane.setPos(-4, -5, 0)
         print(plane.getPos())
 
     def create_pandas_runway(self):

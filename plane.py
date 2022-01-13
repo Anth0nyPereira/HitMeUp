@@ -14,7 +14,7 @@ class Plane:
         self.plane.setFrame(-width / 2, width / 2, -height / 2, height / 2)
         self.plane_node = self.render.attachNewNode(self.plane.generate())
         self.plane_node.setH(90)
-        self.plane_node.setP(90)
+        self.plane_node.setP(-90)
 
         # the card is created vertically in the XZ-plane, so it has to be rotated
         # to make it horizontal
