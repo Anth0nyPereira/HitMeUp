@@ -51,7 +51,7 @@ class Game(ShowBase):
         self.accept("arrow_left", self.update_key_map, ["left", True])
         self.accept("arrow_right", self.update_key_map, ["right", True])
 
-        # self.accept("mouse3", self.update_key_map, ["shoot", True])
+        self.accept("space", self.update_key_map, ["shoot", True])
 
         self.accept("w-up", self.update_key_map, ["up", False])
         self.accept("s-up", self.update_key_map, ["down", False])
@@ -63,7 +63,7 @@ class Game(ShowBase):
         self.accept("arrow_left-up", self.update_key_map, ["left", False])
         self.accept("arrow_right-up", self.update_key_map, ["right", False])
 
-        self.accept("mouse3-up", self.update_key_map, ["shoot", False])
+        self.accept("space-up", self.update_key_map, ["shoot", False])
 
         self.accept("mouse1", self.mouse_click)
         self.accept('wheel_up', self.zoom_in)
@@ -105,13 +105,9 @@ class Game(ShowBase):
         self.render.setLight(self.alight_nodepath)
         '''
 
-        self.card_maker = None
-        shooting_panda = self.create_card_maker()
-        shooting_panda.setScale(0.2, 0.2, 0.2)
-        shooting_panda.setH(90)
-
-
-        # self.create_floor()
+        self.shooting_panda = self.create_card_maker()
+        self.shooting_panda.setScale(0.2, 0.2, 0.2)
+        self.shooting_panda.setH(90)
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -225,6 +221,9 @@ class Game(ShowBase):
         # create empty node
         shooting_panda = NodePath("shooting-panda")
 
+        # enable physics
+        self.enableParticles()
+
         # create the plane
         cm = CardMaker("plane")
         # set the size of the card (left, right, bottom, top - in XZ-plane)
@@ -234,13 +233,12 @@ class Game(ShowBase):
         # to make it horizontal
         # self.plane.setP(-90.)
         self.plane.setPos(0, -5, 10)
+        self.plane.setCollideMask(BitMask32.bit(2))
 
         road_tex = self.loader.loadTexture("textures/sample.jpg")
         self.plane.setTexture(road_tex)
 
         # collision
-        # enable physics
-        self.enableParticles()
 
         # set the gravity
         gravityFN = ForceNode('world-forces')
@@ -257,24 +255,19 @@ class Game(ShowBase):
         self.pusher = PhysicsCollisionHandler()
         self.pusher.addInPattern('%fn-hit')
 
-        self.accept("space", self.shoot)
-
         self.bulletIndex = 0
         self.bullets = []
 
         self.panda = self.loader.loadModel("models/panda")
         self.panda.reparentTo(shooting_panda)
-        self.panda.setCollideMask(BitMask32.bit(2))
+        # self.panda.setCollideMask(BitMask32.bit(2))
 
         self.bulletIndex = 0
         self.bullets = []
 
         self.accept("space", self.shoot)
-
         shooting_panda.reparentTo(self.render)
         return shooting_panda
-
-
 
     def shoot(self):
         self.bullets.append(self.shootBullet())
@@ -290,8 +283,8 @@ class Game(ShowBase):
         bulletNP = NodePath("Bullet-%02d" % self.bulletIndex)
         print(bulletNP.getName())
         self.bulletIndex += 1
-        bulletNP.setPos(0, self.camera.getY(), 5)
-        bulletNP.reparentTo(self.render)
+        bulletNP.setPos(0, self.camera.getY() - 50, 10)
+        bulletNP.reparentTo(self.shooting_panda)
         # create a node that will enable physics
         bulletAN = ActorNode("bullet-physics")
         # 3.3g
@@ -321,7 +314,7 @@ class Game(ShowBase):
 
         bulletFN = ForceNode('Bullet-force')
         bulletFNP = bulletNP.attachNewNode(bulletFN)
-        # 150 fps
+        # 60 fps
         lvf = LinearVectorForce(0, 60, 0)
         lvf.setMassDependent(1)
         bulletFN.addForce(lvf)
@@ -344,7 +337,11 @@ class Game(ShowBase):
         main_hallway = self.create_hallway()
         right_hallway = self.create_hallway()
         right_hallway.setH(90)
-        right_hallway.setPos(18, -5, 0)
+        right_hallway.setPos(18, -3, 0)
+
+        left_hallway = self.create_hallway()
+        left_hallway.setH(-90)
+        left_hallway.setPos(-10, 1, 0)
 
     def create_hallway(self):
 
@@ -410,9 +407,6 @@ class Game(ShowBase):
             available_apples.clear()
             # timestamps.clear()
             self.set_intruder_game()
-
-        if self.keyMap["shoot"]:
-            self.shoot()
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
