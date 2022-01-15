@@ -106,7 +106,10 @@ class Game(ShowBase):
         '''
 
         self.card_maker = None
-        self.create_card_maker()
+        shooting_panda = self.create_card_maker()
+        shooting_panda.setScale(0.2, 0.2, 0.2)
+        shooting_panda.setH(90)
+
 
         # self.create_floor()
 
@@ -261,7 +264,7 @@ class Game(ShowBase):
 
         self.panda = self.loader.loadModel("models/panda")
         self.panda.reparentTo(shooting_panda)
-        self.panda.setCollideMask(BitMask32.bit(1))
+        self.panda.setCollideMask(BitMask32.bit(2))
 
         self.bulletIndex = 0
         self.bullets = []
@@ -269,6 +272,7 @@ class Game(ShowBase):
         self.accept("space", self.shoot)
 
         shooting_panda.reparentTo(self.render)
+        return shooting_panda
 
 
 
