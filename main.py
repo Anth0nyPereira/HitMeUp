@@ -28,6 +28,9 @@ class Game(ShowBase):
 
         self.disableMouse()
 
+        # create hallways
+        self.create_hallways()
+
         # creating the intruder's game
         self.intruder_game = None
         self.set_intruder_game()
@@ -216,12 +219,14 @@ class Game(ShowBase):
         # available_apples[1].node().setAttrib(ShadeModelAttrib.make(ShadeModelAttrib.MSmooth))
 
     def create_card_maker(self):
-        # create the plane
+        # create empty node
+        shooting_panda = NodePath("shooting-panda")
 
+        # create the plane
         cm = CardMaker("plane")
         # set the size of the card (left, right, bottom, top - in XZ-plane)
         cm.setFrame(-2, 2, -2, 2)
-        self.plane = self.render.attachNewNode(cm.generate())
+        self.plane = shooting_panda.attachNewNode(cm.generate())
         # the card is created vertically in the XZ-plane, so it has to be rotated
         # to make it horizontal
         # self.plane.setP(-90.)
@@ -236,7 +241,7 @@ class Game(ShowBase):
 
         # set the gravity
         gravityFN = ForceNode('world-forces')
-        gravityFNP = self.render.attachNewNode(gravityFN)
+        gravityFNP = shooting_panda.attachNewNode(gravityFN)
         gravityForce = LinearVectorForce(0, 0, -9.81)  # gravity acceleration
         gravityFN.addForce(gravityForce)
         self.physicsMgr.addLinearForce(gravityForce)
@@ -255,7 +260,7 @@ class Game(ShowBase):
         self.bullets = []
 
         self.panda = self.loader.loadModel("models/panda")
-        self.panda.reparentTo(self.render)
+        self.panda.reparentTo(shooting_panda)
         self.panda.setCollideMask(BitMask32.bit(1))
 
         self.bulletIndex = 0
@@ -263,10 +268,9 @@ class Game(ShowBase):
 
         self.accept("space", self.shoot)
 
-        main_hallway = self.create_hallway()
-        right_hallway = self.create_hallway()
-        right_hallway.setH(90)
-        right_hallway.setPos(18, -5, 0)
+        shooting_panda.reparentTo(self.render)
+
+
 
     def shoot(self):
         self.bullets.append(self.shootBullet())
@@ -331,6 +335,12 @@ class Game(ShowBase):
         bulletNP.removeNode()
         self.bullets.remove(bulletNP)
         return task.done
+
+    def create_hallways(self):
+        main_hallway = self.create_hallway()
+        right_hallway = self.create_hallway()
+        right_hallway.setH(90)
+        right_hallway.setPos(18, -5, 0)
 
     def create_hallway(self):
 
