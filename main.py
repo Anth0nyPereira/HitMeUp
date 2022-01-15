@@ -342,6 +342,7 @@ class Game(ShowBase):
         left_hallway = self.create_hallway()
         left_hallway.setH(-90)
         left_hallway.setPos(-10, 1, 0)
+        left_hallway.setCollideMask(BitMask32.bit(2))
 
     def create_hallway(self):
 
