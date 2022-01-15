@@ -16,8 +16,6 @@ from box_geometry import BoxGeometry
 from color import Color
 import random
 
-from plane import MyPlane
-
 loadPrcFile("config/conf.prc")
 
 available_apples = []
@@ -125,18 +123,18 @@ class Game(ShowBase):
             self.camera.setP(mpos.getY() * 30)
             self.camera.setH(mpos.getX() * -50)
             if 0.1 > mpos.getX() > -0.1:
-                self.camera.setH(self.camera.getH())
+                self.camera.setH(self.camera.getH() * 8)
             else:
-                self.camera.setH(self.camera.getH() + mpos.getX() * -1)
+                self.camera.setH((self.camera.getH() + mpos.getX() * -1) * 8)
 
         if self.keyMap["up"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(0, 15.0 * dt, 0))
+            self.camera.setY(self.camera, 15 * dt)
         if self.keyMap["down"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(0, -15.0 * dt, 0))
+            self.camera.setY(self.camera, -15 * dt)
         if self.keyMap["left"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(-10.0 * dt, 0, 0))
+            self.camera.setX(self.camera, -10 * dt)
         if self.keyMap["right"]:
-            self.camera.setPos(self.camera.getPos() + Vec3(10.0 * dt, 0, 0))
+            self.camera.setX(self.camera, 10 * dt)
 
         return task.cont
 
