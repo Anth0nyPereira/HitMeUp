@@ -106,7 +106,9 @@ class Game(ShowBase):
         '''
 
         self.shooting_panda = self.create_card_maker()
-        self.shooting_panda.setScale(0.2, 0.2, 0.2)
+        self.shooting_panda.setScale(0.25, 0.25, 0.25)
+        self.shooting_panda.setX(-5)
+        self.shooting_panda.setY(-1)
         self.shooting_panda.setH(90)
 
     def zoom_in(self):
