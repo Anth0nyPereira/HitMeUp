@@ -1,5 +1,5 @@
 import copy
-
+import math
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
@@ -12,10 +12,11 @@ from panda3d.physics import ForceNode, LinearVectorForce, PhysicsCollisionHandle
 
 from axis_helper import AxisHelper
 from apple import Apple
+from box_geometry import BoxGeometry
 from color import Color
 import random
 
-from plane import Plane
+from plane import MyPlane
 
 loadPrcFile("config/conf.prc")
 
@@ -108,7 +109,7 @@ class Game(ShowBase):
         self.card_maker = None
         self.create_card_maker()
 
-        self.create_floor()
+        #self.create_floor()
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -258,7 +259,7 @@ class Game(ShowBase):
 
         self.accept("space", self.shoot)
 
-        self.create_pandas_runway()
+        self.create_hallway()
 
     def shoot(self):
         self.bullets.append(self.shootBullet())
@@ -324,32 +325,64 @@ class Game(ShowBase):
         self.bullets.remove(bulletNP)
         return task.done
 
-    def create_floor(self):
-        plane: NodePath = Plane(self.render, 12, 2.5, self.loader, "textures/neon.jpg").get_plane()
-        plane.setPos(-4, -5, 0)
-        print(plane.getPos())
+    def create_hallway(self):
 
-    def create_pandas_runway(self):
+        # create pivot that will represent the whole object
+        pivot = NodePath("pivot")
+        pivot.setPos(2, -15, 0)
+        pivot.reparentTo(self.render)
+
+        # create bears
+        self.create_pandas_runway(pivot)
+
+        width, depth, height = 4, 12, 0.3
+
+        hall_bot: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_bot.reparentTo(pivot)
+
+        hall_top: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_top.reparentTo(pivot)
+        hall_top.setZ(4)
+
+        hall_left: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_left.reparentTo(pivot)
+        hall_left.setZ(4)
+        hall_left.setR(90)
+
+        hall_right: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_right.reparentTo(pivot)
+        hall_right.setPos(3.7, 0, 4)
+        hall_right.setR(90)
+
+
+
+
+
+
+
+    def create_pandas_runway(self, pivot):
         self.panda_runway = NodePath("panda_runway")
         panda_sample = self.loader.loadModel("models/panda")
-        panda_sample.setScale(0.1, 0.1, 0.1)
+        panda_sample.setScale(0.1, 0.1, 0.15)
         panda_sample.setH(90)
-        counter = -10
-        while counter < 0:
+        counter = 0
+        while counter < 10:
             panda_left = copy.deepcopy(panda_sample)
-            panda_left.setPos(-5, counter, 0)
+            panda_left.setPos(0.5, counter, 0)
             panda_left.reparentTo(self.panda_runway)
 
             panda_right = copy.deepcopy(panda_sample)
-            panda_right.setPos(-3, counter, 0)
+            panda_right.setPos(3.5, counter, 0)
             panda_right.setH(-90)
             panda_right.reparentTo(self.panda_runway)
             counter += 1.5
-        self.panda_runway.reparentTo(self.render)
+        self.panda_runway.reparentTo(pivot)
 
 
     # update loop
     def update(self, task):
+
+        # self.create_floor()
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
