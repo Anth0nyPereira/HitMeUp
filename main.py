@@ -28,14 +28,11 @@ class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
-        self.intruder_game = None
         self.disableMouse()
 
-        # self.box = self.loader.loadModel("models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
-        # self.box.setPos(0, 50, 0)  # x is horizontal left-right, y is depth and z is vertical up-down, basically y is the z in threeJS and z is y in threeJS
-        # self.box.reparentTo(self.render)  # makes the object appear in the scene
-
-        self.create_apples()
+        # creating the intruder's game
+        self.intruder_game = None
+        self.set_intruder_game()
 
         # dict that stores keys to control the game itself
         self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
@@ -110,7 +107,7 @@ class Game(ShowBase):
         self.card_maker = None
         self.create_card_maker()
 
-        #self.create_floor()
+        # self.create_floor()
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -148,6 +145,11 @@ class Game(ShowBase):
         self.keyMap[key] = value
         # print(controlName, "set to", controlState)
 
+    def set_intruder_game(self):
+        self.intruder_game = self.create_apples()
+        self.intruder_game.setH(-90)
+        self.intruder_game.setPos(10, 0, 0)
+
     def create_apples(self):
         # create node that will store basically all the intruder game
         self.intruder_game = NodePath("intruder-game")
@@ -183,7 +185,7 @@ class Game(ShowBase):
             apple.reparentTo(self.intruder_game)
             pos += 1
         self.intruder_game.reparentTo(self.render)
-
+        return self.intruder_game
 
     def mouse_click(self):
 
@@ -209,8 +211,6 @@ class Game(ShowBase):
                     pickedObj.removeNode()
                 else:
                     print("Wrong, try again!")
-
-
 
     def add_shader2(self):
         print("entering add_shader2")
@@ -265,7 +265,10 @@ class Game(ShowBase):
 
         self.accept("space", self.shoot)
 
-        self.create_hallway()
+        main_hallway = self.create_hallway()
+        right_hallway = self.create_hallway()
+        right_hallway.setH(90)
+        right_hallway.setPos(18, -5, 0)
 
     def shoot(self):
         self.bullets.append(self.shootBullet())
@@ -359,12 +362,7 @@ class Game(ShowBase):
         hall_right.reparentTo(pivot)
         hall_right.setPos(3.7, 0, 4)
         hall_right.setR(90)
-
-
-
-
-
-
+        return pivot
 
     def create_pandas_runway(self, pivot):
         self.panda_runway = NodePath("panda_runway")
@@ -384,7 +382,6 @@ class Game(ShowBase):
             counter += 1.5
         self.panda_runway.reparentTo(pivot)
 
-
     # update loop
     def update(self, task):
 
@@ -400,15 +397,13 @@ class Game(ShowBase):
                 available_apples[i].removeNode()
             available_apples.clear()
             # timestamps.clear()
-            self.create_apples()
+            self.set_intruder_game()
 
         if self.keyMap["shoot"]:
             self.shoot()
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
-
-
 
 
 game = Game()
