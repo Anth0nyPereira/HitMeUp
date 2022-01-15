@@ -28,6 +28,7 @@ class Game(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
+        self.intruder_game = None
         self.disableMouse()
 
         # self.box = self.loader.loadModel("models/box")  # loads box.egg.pz, u dont even need to unzip the model lmao, very clever I must say
@@ -148,6 +149,9 @@ class Game(ShowBase):
         # print(controlName, "set to", controlState)
 
     def create_apples(self):
+        # create node that will store basically all the intruder game
+        self.intruder_game = NodePath("intruder-game")
+
         # get 2 random colors
         tuple_colors = Color.generate_2_random_colors()
 
@@ -176,8 +180,10 @@ class Game(ShowBase):
         pos = 0
         for apple in available_apples:
             apple.setPos(pos, 0, 0)
-            apple.reparentTo(self.render)
+            apple.reparentTo(self.intruder_game)
             pos += 1
+        self.intruder_game.reparentTo(self.render)
+
 
     def mouse_click(self):
 
