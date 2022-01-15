@@ -336,7 +336,7 @@ class Game(ShowBase):
         return task.done
 
     def create_hallways(self):
-        main_hallway = self.create_hallway()
+        main_hallway = self.create_hallway(empty=False)
         right_hallway = self.create_hallway()
         right_hallway.setH(90)
         right_hallway.setPos(18, -3, 0)
@@ -346,15 +346,16 @@ class Game(ShowBase):
         left_hallway.setPos(-10, 1, 0)
         left_hallway.setCollideMask(BitMask32.bit(2))
 
-    def create_hallway(self):
+    def create_hallway(self, empty=True):
 
         # create pivot that will represent the whole object
         pivot = NodePath("pivot")
         pivot.setPos(2, -15, 0)
         pivot.reparentTo(self.render)
 
-        # create bears
-        self.create_pandas_runway(pivot)
+        if not empty:
+            # create bears
+            self.create_pandas_runway(pivot)
 
         width, depth, height = 4, 12, 0.3
 
