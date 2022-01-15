@@ -8,6 +8,8 @@ class BoxGeometry:
         self.box_geometry: NodePath = self.loader.loadModel("models/box")
         self.box_geometry.setScale(width, depth, height)
         self.box_geometry.setZ(-0.3) # just because the object is even a little bit thick so
+        self.texture = self.loader.loadTexture("textures/neon.jpg")
+        self.box_geometry.setTexture(self.texture, 1)
 
     def get_box(self):
         return self.box_geometry
