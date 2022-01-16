@@ -258,6 +258,8 @@ class Game(ShowBase):
                     pickedObj.removeNode()
                 else:
                     print("Wrong, try again!")
+                    self.wrong.show()
+                    self.taskMgr.doMethodLater(0.5, self.hide_wrong, "hide-wrong")
 
     def add_shader2(self):
         print("entering add_shader2")
@@ -455,6 +457,8 @@ class Game(ShowBase):
                 available_apples[i].removeNode()
             available_apples.clear()
             # timestamps.clear()
+            self.correct.hide()
+            self.wrong.hide()
             self.set_intruder_game()
             # print(self.score)
 
