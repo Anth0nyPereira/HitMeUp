@@ -420,22 +420,20 @@ class Game(ShowBase):
         left_hallway.setPos(-10, 1, 0)
         left_hallway.setCollideMask(BitMask32.bit(2))
 
-        missing_square1: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square1: NodePath = BoxGeometry(self.render, self.loader, 4.3, 4.3, 0.3).get_box()
         missing_square1.reparentTo(hallways)
         missing_square1.setP(90)
         missing_square1.setR(90)
         missing_square1.setH(90)
         missing_square1.setPos(6, 0.8, 0)
 
-        missing_square2: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square2: NodePath = BoxGeometry(self.render, self.loader, 4.3, 4.3, 0.3).get_box()
         missing_square2.reparentTo(hallways)
         missing_square2.setPos(2, -3.5, -0.3)
 
-        missing_square2: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square2: NodePath = BoxGeometry(self.render, self.loader, 4.3, 4.3, 0.3).get_box()
         missing_square2.reparentTo(hallways)
         missing_square2.setPos(1.8, -3.5, 4)
-
-
 
     def create_hallway(self, empty=True, depth=None):
 
@@ -451,24 +449,24 @@ class Game(ShowBase):
         if depth is None:
             depth = 12
 
-        hall_bot: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_bot: NodePath = BoxGeometry(self.render, self.loader, width, depth, height).get_box()
         hall_bot.reparentTo(pivot)
 
-        hall_top: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_top: NodePath = BoxGeometry(self.render, self.loader, width, depth, height).get_box()
         hall_top.reparentTo(pivot)
         hall_top.setZ(4)
 
-        hall_left: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_left: NodePath = BoxGeometry(self.render, self.loader, width, depth, height).get_box()
         hall_left.reparentTo(pivot)
         hall_left.setZ(4)
         hall_left.setR(90)
 
-        hall_right: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
+        hall_right: NodePath = BoxGeometry(self.render, self.loader, width, depth, height).get_box()
         hall_right.reparentTo(pivot)
         hall_right.setPos(3.7, 0, 4)
         hall_right.setR(90)
 
-        base: NodePath = BoxGeometry(self.loader, width, width, height).get_box()
+        base: NodePath = BoxGeometry(self.render, self.loader, width, width, height).get_box()
         base.reparentTo(pivot)
         base.setP(90)
         base.setPos(0.3, 0.3, 0)
@@ -590,8 +588,6 @@ class Game(ShowBase):
             self.taskMgr.doMethodLater(1, self.animate_bucket_2, "animate-bucket-2")
 
         '''
-
-
 
         '''
         elif self.taskMgr.hasTaskNamed('animate-bucket-3') == 0:
