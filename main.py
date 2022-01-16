@@ -43,6 +43,7 @@ class Game(ShowBase):
 
         self.delta_vals = [0.001, 0.001, 0.001, 0.001]
         self.move_bucket_flags = [True, True, True, True]
+        self.animate_buckets_flag = True
 
         # dict that stores keys to control the game itself
         self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
@@ -203,7 +204,6 @@ class Game(ShowBase):
         random.shuffle(available_apples)
         pos = 0
         for apple in available_apples:
-
             # create empty nodepath that will store each panda & bucket pair
             target = NodePath("target%d" % pos)
 
@@ -235,8 +235,8 @@ class Game(ShowBase):
     def create_labels(self, intruder, message, color):
 
         # create text that will show if the response is correct or not
-        score_obj = Text("label-%s" % message, message, color.value) # object
-        score_text = score_obj.get_text() # TextNode
+        score_obj = Text("label-%s" % message, message, color.value)  # object
+        score_text = score_obj.get_text()  # TextNode
         score_np = intruder.attachNewNode(score_text)
         score_np.setScale(0.5)
         return score_np
@@ -460,23 +460,114 @@ class Game(ShowBase):
             counter += 1.5
         self.panda_runway.reparentTo(pivot)
 
-    def animate_buckets(self):
-        for i in range(len(buckets)):
-            if self.move_bucket_flags[i]:
-                # print(buckets[0].getZ())
-                if buckets[i].getZ() >= 7:
-                    self.delta_vals[i] *= -1
+    def animate_bucket_0(self, task):
+        if self.move_bucket_flags[0]:
+            # print(buckets[0].getZ())
+            if buckets[0].getZ() >= 7:
+                self.delta_vals[0] *= -1
 
-                buckets[i].setZ(buckets[i].getZ() + self.delta_vals[i])
+            buckets[0].setZ(buckets[0].getZ() + self.delta_vals[0])
 
-                if buckets[i].getZ() <= 5.25:
-                    buckets[i].setZ(5.25)
-                    self.delta_vals[i] *= -1
-                    self.move_bucket_flags[i] = False
+            if buckets[0].getZ() <= 5.25:
+                buckets[0].setZ(5.25)
+                self.delta_vals[0] *= -1
+                self.move_bucket_flags[0] = False
+        return task.done
+
+    def animate_bucket_1(self, task):
+        if self.move_bucket_flags[1]:
+            # print(buckets[0].getZ())
+            if buckets[1].getZ() >= 7:
+                self.delta_vals[1] *= -1
+
+            buckets[1].setZ(buckets[1].getZ() + self.delta_vals[1])
+
+            if buckets[1].getZ() <= 5.25:
+                buckets[1].setZ(5.25)
+                self.delta_vals[1] *= -1
+                self.move_bucket_flags[1] = False
+        return task.done
+
+    def animate_bucket_2(self, task):
+        if self.move_bucket_flags[2]:
+            # print(buckets[0].getZ())
+            if buckets[2].getZ() >= 7:
+                self.delta_vals[2] *= -1
+
+            buckets[2].setZ(buckets[2].getZ() + self.delta_vals[2])
+
+            if buckets[2].getZ() <= 5.25:
+                buckets[2].setZ(5.25)
+                self.delta_vals[2] *= -1
+                self.move_bucket_flags[2] = False
+        return task.done
+
+    def animate_bucket_3(self, task):
+        if self.move_bucket_flags[3]:
+            # print(buckets[0].getZ())
+            if buckets[3].getZ() >= 7:
+                self.delta_vals[3] *= -1
+
+            buckets[3].setZ(buckets[3].getZ() + self.delta_vals[3])
+
+            if buckets[3].getZ() <= 5.25:
+                buckets[3].setZ(5.25)
+                self.delta_vals[3] *= -1
+                self.move_bucket_flags[3] = False
+        return task.done
+
+    def animate_bucket(self, i, task):
+        if self.move_bucket_flags[i]:
+            # print(buckets[0].getZ())
+            if buckets[i].getZ() >= 7:
+                self.delta_vals[i] *= -1
+
+            buckets[i].setZ(buckets[i].getZ() + self.delta_vals[i])
+
+            if buckets[i].getZ() <= 5.25:
+                buckets[i].setZ(5.25)
+                self.delta_vals[i] *= -1
+                self.move_bucket_flags[i] = False
+        return task.done
+
+    def remove_tasks(self):
+        self.taskMgr.remove('animate-bucket-0')
+        self.taskMgr.remove('animate-bucket-1')
+        self.taskMgr.remove('animate-bucket-2')
+        self.taskMgr.remove('animate-bucket-3')
+
+    def animate_buckets(self, task):
+
+        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
+            self.taskMgr.doMethodLater(0, self.animate_bucket_0, "animate-bucket-0")
+            self.taskMgr.doMethodLater(0.5, self.animate_bucket_1, "animate-bucket-1")
+            self.taskMgr.doMethodLater(1.2, self.animate_bucket_3, "animate-bucket-3")
+            self.taskMgr.doMethodLater(0.9, self.animate_bucket_2, "animate-bucket-2")
+        '''
+        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
+            self.taskMgr.doMethodLater(0, self.animate_bucket_0, "animate-bucket-0")
+
+        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 1:
+            self.taskMgr.doMethodLater(0.5, self.animate_bucket_1, "animate-bucket-1")
+
+        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 1 and self.taskMgr.hasTaskNamed('animate-bucket-1') == 1 and self.taskMgr.hasTaskNamed('animate-bucket-2') == 0:
+            self.taskMgr.doMethodLater(0, self.animate_bucket_3, "animate-bucket-3")
+
+        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
+            self.taskMgr.doMethodLater(1, self.animate_bucket_2, "animate-bucket-2")
+
+        '''
+
+
+
+        '''
+        elif self.taskMgr.hasTaskNamed('animate-bucket-3') == 0:
+            self.taskMgr.doMethodLater(1.5, self.animate_bucket_3, "animate-bucket-3")
+        '''
 
     # update loop
     def update(self, task):
-        self.animate_buckets()
+        self.animate_buckets(task)
 
         '''
         for b in buckets:
@@ -506,6 +597,8 @@ class Game(ShowBase):
             self.set_intruder_game()
             self.move_bucket_flags = [True, True, True, True]
             self.delta_vals = [0.001, 0.001, 0.001, 0.001]
+            self.animate_buckets_flag = True
+            self.remove_tasks()
             # print(self.score)
 
         self.update_counter += 1
@@ -513,7 +606,5 @@ class Game(ShowBase):
 
 
 game = Game()
-
-# print(__builtins__.camera)
 
 game.run()
