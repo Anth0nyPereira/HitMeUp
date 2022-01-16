@@ -430,6 +430,12 @@ class Game(ShowBase):
         missing_square2.reparentTo(hallways)
         missing_square2.setPos(2, -3.5, -0.3)
 
+        missing_square2: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square2.reparentTo(hallways)
+        missing_square2.setPos(1.8, -3.5, 4)
+
+
+
     def create_hallway(self, empty=True, depth=None):
 
         # create pivot that will represent the whole object
