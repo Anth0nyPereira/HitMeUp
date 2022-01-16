@@ -401,23 +401,40 @@ class Game(ShowBase):
         return task.done
 
     def create_hallways(self):
+        hallways = NodePath("hallways")
+        hallways.reparentTo(self.render)
+
         main_hallway = self.create_hallway(empty=False, depth=22)
+        main_hallway.reparentTo(hallways)
         main_hallway.setY(-25)
+
         right_hallway = self.create_hallway()
+        right_hallway.reparentTo(hallways)
         right_hallway.setH(90)
         right_hallway.setPos(18, -3, 0)
 
         left_hallway = self.create_hallway()
+        left_hallway.reparentTo(hallways)
         left_hallway.setH(-90)
         left_hallway.setPos(-10, 1, 0)
         left_hallway.setCollideMask(BitMask32.bit(2))
+
+        missing_square1: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square1.reparentTo(hallways)
+        missing_square1.setP(90)
+        missing_square1.setR(90)
+        missing_square1.setH(90)
+        missing_square1.setPos(6, 0.8, 0)
+
+        missing_square2: NodePath = BoxGeometry(self.loader, 4.3, 4.3, 0.3).get_box()
+        missing_square2.reparentTo(hallways)
+        missing_square2.setPos(2, -3.5, -0.3)
 
     def create_hallway(self, empty=True, depth=None):
 
         # create pivot that will represent the whole object
         pivot = NodePath("pivot")
         pivot.setPos(2, -15, 0)
-        pivot.reparentTo(self.render)
 
         if not empty:
             # create bears
@@ -443,6 +460,12 @@ class Game(ShowBase):
         hall_right.reparentTo(pivot)
         hall_right.setPos(3.7, 0, 4)
         hall_right.setR(90)
+
+        base: NodePath = BoxGeometry(self.loader, width, width, height).get_box()
+        base.reparentTo(pivot)
+        base.setP(90)
+        base.setPos(0.3, 0.3, 0)
+
         return pivot
 
     def create_pandas_runway(self, pivot):
