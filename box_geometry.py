@@ -21,8 +21,6 @@ class BoxGeometry:
 
         box_material = Material()
         box_material.setAmbient((1, 0.5, 0.5, 1))
-        # box_material.setSpecular(Color.white.value)
-        # box_material.setAmbient((0, 0, 1, 1))  # Make this material blue
         self.box_geometry.setMaterial(box_material)
 
     def get_box(self):

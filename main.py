@@ -579,7 +579,7 @@ class Game(ShowBase):
 
     def animate_light(self):
         self.runway_light_node.setP(self.runway_light_node.getP() - 0.05)
-        print(self.runway_light_node.getP())
+        # print(self.runway_light_node.getP())
         if int(self.runway_light_node.getP()) % 10 == 0:
             self.runway_light.setColor(Color.generate_random_color().value)
 

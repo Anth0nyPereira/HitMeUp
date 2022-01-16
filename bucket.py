@@ -1,4 +1,6 @@
-from panda3d.core import TextureStage
+from panda3d.core import TextureStage, Material
+
+from color import Color
 
 
 class Bucket:
