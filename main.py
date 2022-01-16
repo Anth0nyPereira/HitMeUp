@@ -537,7 +537,7 @@ class Game(ShowBase):
         self.taskMgr.remove('animate-bucket-3')
 
     def animate_buckets(self, task):
-        
+
         if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
             self.taskMgr.doMethodLater(0, self.animate_bucket_0, "animate-bucket-0")
             self.taskMgr.doMethodLater(0.5, self.animate_bucket_1, "animate-bucket-1")

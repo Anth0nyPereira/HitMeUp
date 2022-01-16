@@ -13,6 +13,10 @@ class Text:
         self.text.setShadow(0.05, 0.05)
         self.text.setShadowColor(0, 0, 0, 0.5)
 
+        self.text.setCardColor(0.2, 0, 0.5, 1)
+        self.text.setCardAsMargin(0, 0, 0, 0)
+        self.text.setCardDecal(True)
+
     def get_text(self):
         return self.text
 
