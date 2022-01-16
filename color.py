@@ -8,6 +8,8 @@ class Color(enum.Enum):
     blue = Vec4(0, 0, 1, 1)
     purple = Vec4(1, 0, 1, 1)
     yellow = Vec4(1, 1, 0, 1)
+    white = Vec4(1, 1, 1, 1)
+    black = Vec4(0, 0, 0, 1)
 
     @classmethod
     def generate_2_random_colors(cls):

@@ -36,8 +36,9 @@ class Game(ShowBase):
 
         # creating the intruder's game
         self.intruder_game = None
-        self.set_intruder_game()
         self.score = 0
+        self.set_intruder_game()
+        self.score_obj = None
         self.score_text = None
 
         # dict that stores keys to control the game itself
@@ -159,6 +160,8 @@ class Game(ShowBase):
         self.intruder_game.setScale(0.7, 0.7, 0.7)
 
     def create_apples(self):
+        score = self.score
+
         # create node that will store basically all the intruder game
         self.intruder_game = NodePath("intruder-game")
 
@@ -199,12 +202,34 @@ class Game(ShowBase):
 
             pos += 1
 
-        # create text that will show the score for the intruder's game
-        self.score_text: NodePath = Text(self.intruder_game, "score", "Score: 0", 0.5, Vec4(1, 1, 1, 1)).get_text()
-        self.score_text.setPos(1.5, 0, 5)
-
+        # create labels
+        self.correct = self.create_labels(self.intruder_game, "You got it right!", Color.green)
+        self.correct.hide()
+        self.correct.setPos(-0.5, 0, 3.5)
+        self.wrong = self.create_labels(self.intruder_game, "Wrong, try again!", Color.red)
+        self.wrong.setPos(-0.5, 0, 3.5)
+        self.wrong.hide()
+        self.score_label = self.create_labels(self.intruder_game, f"Score: {score}", Color.white)
+        self.score_label.hide()
         self.intruder_game.reparentTo(self.render)
         return self.intruder_game
+
+    def create_labels(self, intruder, message, color):
+
+        # create text that will show if the response is correct or not
+        score_obj = Text("label-%s" % message, message, color.value) # object
+        score_text = score_obj.get_text() # TextNode
+        score_np = intruder.attachNewNode(score_text)
+        score_np.setScale(0.5)
+        return score_np
+
+    def hide_correct(self, task):
+        self.correct.hide()
+        return task.done
+
+    def hide_wrong(self, task):
+        self.wrong.hide()
+        return task.done
 
     def mouse_click(self):
 
@@ -226,6 +251,9 @@ class Game(ShowBase):
 
                 if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
                     print("You got it right!")
+                    self.correct.show()
+                    self.taskMgr.doMethodLater(0.5, self.hide_correct, "hide-correct")
+                    self.score += 1
                     pickedObj.detachNode()
                     pickedObj.removeNode()
                 else:
@@ -415,19 +443,20 @@ class Game(ShowBase):
     # update loop
     def update(self, task):
 
-        # print(self.camera.getPos())
+        # print(self.render.find("**/intruder-game").getChildren())
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
         # print(dt)
         timestamps.append(dt)
-        if self.update_counter % 5000 == 0:
+        if self.update_counter > 0 and self.update_counter % 5000 == 0:
             for i in range(len(available_apples)):
                 available_apples[i].detachNode()
                 available_apples[i].removeNode()
             available_apples.clear()
             # timestamps.clear()
             self.set_intruder_game()
+            # print(self.score)
 
         self.update_counter += 1
         return task.cont  # task.cont exists to make this task run forever
