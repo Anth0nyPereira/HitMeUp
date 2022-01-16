@@ -23,6 +23,7 @@ loadPrcFile("config/conf.prc")
 
 available_apples = []
 buckets = []
+objects_affected_by_light = []
 
 
 class Game(ShowBase):
@@ -88,7 +89,7 @@ class Game(ShowBase):
 
         self.last_mouse_position = Vec2(0, 0)
 
-        self.camera.setPos(4, -18, 0.5)
+        self.camera.setPos(4, -24, 0.5)
 
         # ser collisionTraverser  and collision handler
         self.picker = CollisionTraverser()
@@ -128,6 +129,15 @@ class Game(ShowBase):
             print(f'Parent: {parent}')
         # print(self.intruder_game.findAllMatches("**/target**"))
         '''
+
+        # lights
+        self.runway_light = PointLight("point-light-main-runway")
+        self.runway_light.setColor(Color.yellow.value)
+        self.runway_light.attenuation = (0, 0, 1)
+        print(self.runway_light.getMaxDistance())
+        self.runway_light_node = self.render.attachNewNode(self.runway_light)
+        self.runway_light_node.setPos(self.camera.getPos())
+        objects_affected_by_light[0].setLight(self.runway_light_node)
 
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
@@ -475,6 +485,7 @@ class Game(ShowBase):
 
     def create_pandas_runway(self, pivot):
         self.panda_runway = NodePath("panda_runway")
+        objects_affected_by_light.append(self.panda_runway)
         panda_sample = self.loader.loadModel("models/panda")
         panda_sample.setScale(0.1, 0.1, 0.15)
         panda_sample.setH(90)
