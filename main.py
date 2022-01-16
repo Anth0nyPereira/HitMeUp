@@ -365,6 +365,7 @@ class Game(ShowBase):
         self.physicsMgr.attachPhysicalNode(bulletAN)
         # load a visual model to represent the bullet
         bullet = self.loader.loadModel("models/smiley")
+        bullet.setScale(0.5, 0.5, 0.5)
         color = LPoint3f(1, 0, 0)
         bullet.setColor(color.getX(), color.getY(), color.getZ(), 1.0)
         bullet.reparentTo(bulletANP)
