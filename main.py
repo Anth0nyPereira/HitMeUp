@@ -401,7 +401,8 @@ class Game(ShowBase):
         return task.done
 
     def create_hallways(self):
-        main_hallway = self.create_hallway(empty=False)
+        main_hallway = self.create_hallway(empty=False, depth=22)
+        main_hallway.setY(-25)
         right_hallway = self.create_hallway()
         right_hallway.setH(90)
         right_hallway.setPos(18, -3, 0)
@@ -411,7 +412,7 @@ class Game(ShowBase):
         left_hallway.setPos(-10, 1, 0)
         left_hallway.setCollideMask(BitMask32.bit(2))
 
-    def create_hallway(self, empty=True):
+    def create_hallway(self, empty=True, depth=None):
 
         # create pivot that will represent the whole object
         pivot = NodePath("pivot")
@@ -422,7 +423,9 @@ class Game(ShowBase):
             # create bears
             self.create_pandas_runway(pivot)
 
-        width, depth, height = 4, 12, 0.3
+        width, height = 4, 0.3
+        if depth is None:
+            depth = 12
 
         hall_bot: NodePath = BoxGeometry(self.loader, width, depth, height).get_box()
         hall_bot.reparentTo(pivot)
@@ -450,11 +453,11 @@ class Game(ShowBase):
         counter = 0
         while counter < 10:
             panda_left = copy.deepcopy(panda_sample)
-            panda_left.setPos(0.5, counter, 0)
+            panda_left.setPos(0.5, counter + 2, 0)
             panda_left.reparentTo(self.panda_runway)
 
             panda_right = copy.deepcopy(panda_sample)
-            panda_right.setPos(3.5, counter, 0)
+            panda_right.setPos(3.5, counter + 2, 0)
             panda_right.setH(-90)
             panda_right.reparentTo(self.panda_runway)
             counter += 1.5
