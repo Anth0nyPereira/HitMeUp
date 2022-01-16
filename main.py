@@ -22,7 +22,7 @@ from text import Text
 loadPrcFile("config/conf.prc")
 
 available_apples = []
-timestamps = []
+buckets = []
 
 
 class Game(ShowBase):
@@ -40,6 +40,9 @@ class Game(ShowBase):
         self.set_intruder_game()
         self.score_obj = None
         self.score_text = None
+
+        self.delta_vals = [0.001, 0.001, 0.001, 0.001]
+        self.move_bucket_flags = [True, True, True, True]
 
         # dict that stores keys to control the game itself
         self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
@@ -117,6 +120,14 @@ class Game(ShowBase):
         self.shooting_panda.setY(-1)
         self.shooting_panda.setH(90)
 
+        '''
+        for target in self.intruder_game.findAllMatches("**/target**/panda-**"):
+            print(f'Target: {target}')
+            parent = target.parent
+            print(f'Parent: {parent}')
+        # print(self.intruder_game.findAllMatches("**/target**"))
+        '''
+
     def zoom_in(self):
         self.camera.set_y(self.camera, 5)
 
@@ -173,7 +184,7 @@ class Game(ShowBase):
             apple_object = Apple(self.loader, tuple_colors[0].value, self.render)
             apple = apple_object.get_apple()
             apple.setCollideMask(BitMask32.bit(1))
-            apple.setName("other")
+            apple.setName("panda-other")
             apple_object.set_light_to_apple()
             available_apples.append(apple)
 
@@ -185,21 +196,28 @@ class Game(ShowBase):
         # print(type(apple)) # nodepath
 
         apple.setCollideMask(BitMask32.bit(1))
-        apple.setName("outlandish")
+        apple.setName("panda-outlandish")
         available_apples.append(apple)
 
         # positioning all apples
         random.shuffle(available_apples)
         pos = 0
         for apple in available_apples:
+
+            # create empty nodepath that will store each panda & bucket pair
+            target = NodePath("target%d" % pos)
+
             apple.setPos(pos, 0, 0)
-            apple.reparentTo(self.intruder_game)
+            apple.reparentTo(target)
 
             # create each bucket
             bucket: NodePath = Bucket(self.loader).get_bucket()
-            bucket.setPos(pos, 0, 3)
-            bucket.reparentTo(self.intruder_game)
+            bucket.setPos(pos, 0, 5.3)
+            # bucket.setPos(pos, 0, 3)
+            bucket.reparentTo(target)
+            buckets.append(bucket)
 
+            target.reparentTo(self.intruder_game)
             pos += 1
 
         # create labels
@@ -249,7 +267,7 @@ class Game(ShowBase):
                 pickedObj: NodePath = self.pq.getEntry(0).getIntoNodePath()
                 parent_picked_obj = pickedObj.parent.parent  # while debugging, discovered that needed to check the great-grandfather node
 
-                if parent_picked_obj in available_apples and parent_picked_obj.getName() == "outlandish":
+                if parent_picked_obj in available_apples and parent_picked_obj.getName() == "panda-outlandish":
                     print("You got it right!")
                     self.correct.show()
                     self.taskMgr.doMethodLater(0.5, self.hide_correct, "hide-correct")
@@ -442,24 +460,52 @@ class Game(ShowBase):
             counter += 1.5
         self.panda_runway.reparentTo(pivot)
 
+    def animate_buckets(self):
+        for i in range(len(buckets)):
+            if self.move_bucket_flags[i]:
+                # print(buckets[0].getZ())
+                if buckets[i].getZ() >= 7:
+                    self.delta_vals[i] *= -1
+
+                buckets[i].setZ(buckets[i].getZ() + self.delta_vals[i])
+
+                if buckets[i].getZ() <= 5.25:
+                    buckets[i].setZ(5.25)
+                    self.delta_vals[i] *= -1
+                    self.move_bucket_flags[i] = False
+
     # update loop
     def update(self, task):
+        self.animate_buckets()
 
+        '''
+        for b in buckets:
+            b: NodePath
+            b.setZ(b.getZ() + self.delta_val)
+            if b.getZ() >=3:
+                self.delta_val *= -1
+            elif b.getZ() > 1.2:
+                b.setZ(1.25)
+        '''
         # print(self.render.find("**/intruder-game").getChildren())
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
         # print(dt)
-        timestamps.append(dt)
-        if self.update_counter > 0 and self.update_counter % 5000 == 0:
+
+        if self.update_counter > 0 and self.update_counter % 10000 == 0:
             for i in range(len(available_apples)):
                 available_apples[i].detachNode()
                 available_apples[i].removeNode()
+                buckets[i].removeNode()
             available_apples.clear()
-            # timestamps.clear()
+            buckets.clear()
+
             self.correct.hide()
             self.wrong.hide()
             self.set_intruder_game()
+            self.move_bucket_flags = [True, True, True, True]
+            self.delta_vals = [0.001, 0.001, 0.001, 0.001]
             # print(self.score)
 
         self.update_counter += 1
