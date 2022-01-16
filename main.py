@@ -375,7 +375,7 @@ class Game(ShowBase):
         self.physicsMgr.attachPhysicalNode(bulletAN)
         # load a visual model to represent the bullet
         bullet = self.loader.loadModel("models/smiley")
-        bullet.setScale(0.5, 0.5, 0.5)
+        bullet.setScale(0.7, 0.7, 0.7)
         color = LPoint3f(1, 0, 0)
         bullet.setColor(color.getX(), color.getY(), color.getZ(), 1.0)
         bullet.reparentTo(bulletANP)
@@ -558,20 +558,6 @@ class Game(ShowBase):
                 self.move_bucket_flags[3] = False
         return task.done
 
-    def animate_bucket(self, i, task):
-        if self.move_bucket_flags[i]:
-            # print(buckets[0].getZ())
-            if buckets[i].getZ() >= 7:
-                self.delta_vals[i] *= -1
-
-            buckets[i].setZ(buckets[i].getZ() + self.delta_vals[i])
-
-            if buckets[i].getZ() <= 5.25:
-                buckets[i].setZ(5.25)
-                self.delta_vals[i] *= -1
-                self.move_bucket_flags[i] = False
-        return task.done
-
     def remove_tasks(self):
         self.taskMgr.remove('animate-bucket-0')
         self.taskMgr.remove('animate-bucket-1')
@@ -585,25 +571,6 @@ class Game(ShowBase):
             self.taskMgr.doMethodLater(0.5, self.animate_bucket_1, "animate-bucket-1")
             self.taskMgr.doMethodLater(0.3, self.animate_bucket_3, "animate-bucket-3")
             self.taskMgr.doMethodLater(0.7, self.animate_bucket_2, "animate-bucket-2")
-        '''
-        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
-            self.taskMgr.doMethodLater(0, self.animate_bucket_0, "animate-bucket-0")
-
-        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 1:
-            self.taskMgr.doMethodLater(0.5, self.animate_bucket_1, "animate-bucket-1")
-
-        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 1 and self.taskMgr.hasTaskNamed('animate-bucket-1') == 1 and self.taskMgr.hasTaskNamed('animate-bucket-2') == 0:
-            self.taskMgr.doMethodLater(0, self.animate_bucket_3, "animate-bucket-3")
-
-        if self.taskMgr.hasTaskNamed('animate-bucket-0') == 0:
-            self.taskMgr.doMethodLater(1, self.animate_bucket_2, "animate-bucket-2")
-
-        '''
-
-        '''
-        elif self.taskMgr.hasTaskNamed('animate-bucket-3') == 0:
-            self.taskMgr.doMethodLater(1.5, self.animate_bucket_3, "animate-bucket-3")
-        '''
 
     # update loop
     def update(self, task):
