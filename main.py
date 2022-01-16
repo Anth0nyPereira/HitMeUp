@@ -5,7 +5,7 @@ from panda3d.bullet import BulletWorld
 from panda3d.core import loadPrcFile, Point3, Vec2, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, BitMask32, CollisionRay, NodePath, \
     Shader, DirectionalLight, ShadeModelAttrib, PointLight, Material, \
-    AmbientLight, CardMaker, CollisionSphere, LPoint3f  # funct import to load configurations file
+    AmbientLight, CardMaker, CollisionSphere, LPoint3f, Spotlight  # funct import to load configurations file
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import Vec4, Vec3
 from panda3d.physics import ForceNode, LinearVectorForce, PhysicsCollisionHandler, ActorNode
@@ -31,6 +31,8 @@ class Game(ShowBase):
         ShowBase.__init__(self)
 
         self.disableMouse()
+
+        self.render.setShaderAuto()
 
         # create hallways
         self.create_hallways()
@@ -131,12 +133,15 @@ class Game(ShowBase):
         '''
 
         # lights
-        self.runway_light = PointLight("point-light-main-runway")
+        self.pivot_light = NodePath("pivot-light")
+        self.runway_light = Spotlight("point-light-main-runway")
         self.runway_light.setColor(Color.yellow.value)
-        self.runway_light.attenuation = (0, 0, 1)
-        print(self.runway_light.getMaxDistance())
-        self.runway_light_node = self.render.attachNewNode(self.runway_light)
-        self.runway_light_node.setPos(self.camera.getPos())
+        # self.runway_light.setShadowCaster(True, 512, 512)
+        # self.runway_light.attenuation = (1, 0, 0)
+        self.runway_light_node: NodePath = self.pivot_light.attachNewNode(self.runway_light)
+        self.runway_light_node.setPos(4, -12.5, -2)
+        self.pivot_light.reparentTo(self.render)
+
         objects_affected_by_light[0].setLight(self.runway_light_node)
 
     def zoom_in(self):
@@ -487,16 +492,16 @@ class Game(ShowBase):
         self.panda_runway = NodePath("panda_runway")
         objects_affected_by_light.append(self.panda_runway)
         panda_sample = self.loader.loadModel("models/panda")
-        panda_sample.setScale(0.1, 0.1, 0.15)
+        panda_sample.setScale(0.1, 0.1, 0.3)
         panda_sample.setH(90)
         counter = 0
-        while counter < 10:
+        while counter < 15:
             panda_left = copy.deepcopy(panda_sample)
-            panda_left.setPos(0.5, counter + 2, 0)
+            panda_left.setPos(0.5, counter + 4, 0)
             panda_left.reparentTo(self.panda_runway)
 
             panda_right = copy.deepcopy(panda_sample)
-            panda_right.setPos(3.5, counter + 2, 0)
+            panda_right.setPos(3.5, counter + 4, 0)
             panda_right.setH(-90)
             panda_right.reparentTo(self.panda_runway)
             counter += 1.5
@@ -572,9 +577,16 @@ class Game(ShowBase):
             self.taskMgr.doMethodLater(0.3, self.animate_bucket_3, "animate-bucket-3")
             self.taskMgr.doMethodLater(0.7, self.animate_bucket_2, "animate-bucket-2")
 
+    def animate_light(self):
+        self.runway_light_node.setP(self.runway_light_node.getP() - 0.05)
+        print(self.runway_light_node.getP())
+        if int(self.runway_light_node.getP()) % 10 == 0:
+            self.runway_light.setColor(Color.generate_random_color().value)
+
     # update loop
     def update(self, task):
         self.animate_buckets(task)
+        self.animate_light()
 
         '''
         for b in buckets:
