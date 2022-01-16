@@ -37,6 +37,8 @@ class Game(ShowBase):
         # creating the intruder's game
         self.intruder_game = None
         self.set_intruder_game()
+        self.score = 0
+        self.score_text = None
 
         # dict that stores keys to control the game itself
         self.keyMap = {"up": False, "down": False, "left": False, "right": False, "shoot": False, "w": False,
@@ -198,8 +200,8 @@ class Game(ShowBase):
             pos += 1
 
         # create text that will show the score for the intruder's game
-        score_text: NodePath = Text("Score: 0", 2, 3.5, 0.5).get_text()
-        score_text.reparentTo(self.intruder_game)
+        self.score_text: NodePath = Text(self.intruder_game, "score", "Score: 0", 0.5, Vec4(1, 1, 1, 1)).get_text()
+        self.score_text.setPos(1.5, 0, 5)
 
         self.intruder_game.reparentTo(self.render)
         return self.intruder_game
