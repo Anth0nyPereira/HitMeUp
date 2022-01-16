@@ -13,6 +13,7 @@ from panda3d.physics import ForceNode, LinearVectorForce, PhysicsCollisionHandle
 from axis_helper import AxisHelper
 from apple import Apple
 from box_geometry import BoxGeometry
+from bucket import Bucket
 from color import Color
 import random
 
@@ -78,7 +79,7 @@ class Game(ShowBase):
 
         self.last_mouse_position = Vec2(0, 0)
 
-        self.camera.setPos(0, -10, 0.5)
+        self.camera.setPos(4, -18, 0.5)
 
         # ser collisionTraverser  and collision handler
         self.picker = CollisionTraverser()
@@ -151,6 +152,7 @@ class Game(ShowBase):
         self.intruder_game = self.create_apples()
         self.intruder_game.setH(-90)
         self.intruder_game.setPos(10, 0, 0)
+        self.intruder_game.setScale(0.7, 0.7, 0.7)
 
     def create_apples(self):
         # create node that will store basically all the intruder game
@@ -185,6 +187,12 @@ class Game(ShowBase):
         for apple in available_apples:
             apple.setPos(pos, 0, 0)
             apple.reparentTo(self.intruder_game)
+
+            # create each bucket
+            bucket: NodePath = Bucket(self.loader).get_bucket()
+            bucket.setPos(pos, 0, 3)
+            bucket.reparentTo(self.intruder_game)
+
             pos += 1
         self.intruder_game.reparentTo(self.render)
         return self.intruder_game
@@ -398,7 +406,7 @@ class Game(ShowBase):
     # update loop
     def update(self, task):
 
-        # self.create_floor()
+        # print(self.camera.getPos())
 
         # Get the amount of time since the last update
         dt = globalClock.getDt()
