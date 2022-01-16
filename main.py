@@ -168,7 +168,7 @@ class Game(ShowBase):
     def set_intruder_game(self):
         self.intruder_game = self.create_apples()
         self.intruder_game.setH(-90)
-        self.intruder_game.setPos(10, 0, 0)
+        self.intruder_game.setPos(12.5, 0, 0)
         self.intruder_game.setScale(0.7, 0.7, 0.7)
 
     def create_apples(self):
@@ -223,9 +223,9 @@ class Game(ShowBase):
         # create labels
         self.correct = self.create_labels(self.intruder_game, "You got it right!", Color.green)
         self.correct.hide()
-        self.correct.setPos(-0.5, 0, 3.5)
+        self.correct.setPos(-0.5, 0, 2.5)
         self.wrong = self.create_labels(self.intruder_game, "Wrong, try again!", Color.red)
-        self.wrong.setPos(-0.5, 0, 3.5)
+        self.wrong.setPos(-0.5, 0, 2.5)
         self.wrong.hide()
         self.score_label = self.create_labels(self.intruder_game, f"Score: {score}", Color.white)
         self.score_label.hide()
