@@ -17,6 +17,8 @@ from bucket import Bucket
 from color import Color
 import random
 
+from text import Text
+
 loadPrcFile("config/conf.prc")
 
 available_apples = []
@@ -194,6 +196,11 @@ class Game(ShowBase):
             bucket.reparentTo(self.intruder_game)
 
             pos += 1
+
+        # create text that will show the score for the intruder's game
+        score_text: NodePath = Text("Score: 0", 2, 3.5, 0.5).get_text()
+        score_text.reparentTo(self.intruder_game)
+
         self.intruder_game.reparentTo(self.render)
         return self.intruder_game
 
