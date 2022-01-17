@@ -226,7 +226,7 @@ class Game(ShowBase):
             apple.reparentTo(target)
 
             # create each bucket
-            bucket: NodePath = Bucket(self.loader).get_bucket()
+            bucket: NodePath = Bucket(self.render, self.loader).get_bucket()
             bucket.setPos(pos, 0, 1.3)
             # bucket.setPos(pos, 0, 3)
             bucket.reparentTo(target)
@@ -371,14 +371,9 @@ class Game(ShowBase):
         bulletAN = ActorNode("bullet-physics")
         # 3.3g
         bulletAN.getPhysicsObject().setMass(0.033)
-        # attach the base node to the physics node
-        # this will give us the following nodepath structure
-        # render < bulletNP < bulletANP < bulletAN (actual node)
         bulletANP = bulletNP.attachNewNode(bulletAN)
-        # attach the node also to the physic manager so it will be
-        # affected by the physic simulation
         self.physicsMgr.attachPhysicalNode(bulletAN)
-        # load a visual model to represent the bullet
+
         bullet = self.loader.loadModel("models/smiley")
         bullet.setScale(0.7, 0.7, 0.7)
         color = LPoint3f(1, 0, 0)

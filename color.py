@@ -9,6 +9,7 @@ class Color(enum.Enum):
     purple = Vec4(10, 0, 10, 1)
     yellow = Vec4(10, 10, 3, 1)
     white = Vec4(10, 10, 10, 1)
+    gold = Vec4(10, 8.43, 0, 1)
 
     @classmethod
     def generate_random_color(cls):
