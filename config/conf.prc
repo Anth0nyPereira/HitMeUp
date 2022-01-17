@@ -1,5 +1,5 @@
 win-size 1280 720
-window-title Panda3D Game
+window-title HIT ME UP!
 undecorated false
 sync-video true
 show-frame-rate-meter true
